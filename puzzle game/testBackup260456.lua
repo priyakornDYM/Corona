@@ -98,6 +98,76 @@ local function newGem (i,j)
     return newGem
 end
 
+------------------ old (its error sensor)--------------------------
+--function pasteCopyGem(self,event)    
+--   -- print("create "..gemsTable[self.i][self.j].markX,gemsTable[self.i][self.j].x,gemsTable[self.i][self.j].gemType )       
+--    --print("pos "..gemsTable[1][self.j].x, gemsTable[6][self.j].x)
+--    print("slide "..gemsTable[6][self.j].x)
+--    if(gemsTable[self.i][self.j].markX > gemsTable[self.i][self.j].x) then -- -- LEFT   
+--       
+----        pasteGemMark = 585 + sizeGem + 8
+----        R = gemsTable[1][self.j].color                   
+----        pasteGem6 = display.newImageRect(picture[R],sizeGem,sizeGem)                
+----        pasteGem6.x,pasteGem6.y = pasteGemMark, gemsTable[6][self.j].markY -- 584 is latePos gem                              
+--          
+--       
+----        if(gemsTable[6][self.j].x <= 578 ) then           
+------            R = gemsTable[1][self.j].color
+------            print("image path "..R,picture[ R ] )
+----            pasteGemMark = 585 + sizeGem + 8  
+----           
+----            if(gemsTable[6][self.j].x >= 577) then                  
+----                R = gemsTable[1][self.j].color                   
+----                pasteGem6 = display.newImageRect(picture[R],sizeGem,sizeGem)                
+----                pasteGem6.x,pasteGem6.y = pasteGemMark, gemsTable[6][self.j].markY -- 584 is latePos gem                              
+----            else  
+----                print("pasteGemMark")
+----                pasteGem6.x = pasteGemMark + self.slideEvent
+----            end 
+----                 
+----            print("gemsTable[6]") --
+----        elseif (gemsTable[6][self.j].x <= 472) then          
+----            print("gemsTable[5]")
+----        elseif (gemsTable[4][self.j].x <= 366) then
+----            print("gemsTable[4]")
+----        elseif (gemsTable[3][self.j].x <= 260) then  
+----            print("gemsTable[3]")
+----        elseif (gemsTable[2][self.j].x <= 154) then
+----            print("gemsTable[2]")
+----        elseif (gemsTable[1][self.j].x <= 48) then  
+----            print("gemsTable[1]")
+----        else
+----            print("type1 "..gemsTable[1][self.j].x)
+----            print("type2 "..gemsTable[2][self.j].x)
+----            print("type3 "..gemsTable[3][self.j].x)
+----            print("type4 "..gemsTable[4][self.j].x)
+----            print("type5 "..gemsTable[5][self.j].x)
+----            print("type6 "..gemsTable[6][self.j].x)
+----        print("slideError "..gemsTable[6][self.j].x)           
+----        end 
+----       
+----        if(copyGem == "RED") then  
+----            R = 1
+----        elseif (copyGem == "GREEN") then
+----            R = 2
+----        elseif (copyGem == "BLUE") then
+----            R = 3
+----        elseif (copyGem == "PURPLE") then
+----            R = 4
+----        elseif (copyGem == "PINK") then
+----            R = 5
+----        elseif (copyGem == "YELLOW") then            
+----            R = 6
+----        end
+----       
+----        pasteGem = display.newImageRect(picture[R],sizeGem,sizeGem)
+----        pasteGam.x,pasteGam.y = 10, 20
+--        
+--    else    -- -- RIGHT
+--       -- gemsTable[gemX][self.j].gemType
+--    end    
+--end
+
 function copyGem(self,event)
 --    print("copyGem(self,event)  ")    
 --    print("pointXY :"..gemsTable[self.i][self.j].i,gemsTable[self.i][self.j].j)
@@ -136,7 +206,6 @@ function pasteGem(self,event)
 --    1.slide position to real
 --    2.replace real gemX
 --    3.remove animetion copy gem
-   --print("x pos "..getmetatable[self.i][self.j].x)
     
     if(gemsTable[self.j][self.j].i <= 584 and gemsTable[self.j][self.j].i >= 478) then
         gemsTable[self.j][self.j].x = gemsTable[self.j][self.j].x+20
@@ -148,27 +217,23 @@ function pasteGem(self,event)
         copyGemXR[R]:removeSelf()
         copyGemXL[R]:removeSelf()
     end
-    for C = 1, gemY, 1 do 
-        copyGemYU[C]:removeSelf()
-        copyGemYD[C]:removeSelf()
-    end
-    checkMemory()
+    
 end
 
 function slideGem(self,event)  
     if(self.chkFtPosit == "x") then ------- -- -- slide X    
         centerGemSt = event.xStart
         self.slideEvent = (event.x - event.xStart)
-       -- gemsTable[][].j :: gemsTable[][].i == point self // gemsTable[self.i][self.j] == data self VIP                         
-        if(gemsTable[self.i][self.j].x <= 20 or gemsTable[self.i][self.j].x >= 620) then     --  jump end dont move          
-            if(gemsTable[self.i][self.j].x <= 20) then
-              self.posEnd ="st"                 
-            elseif (gemsTable[self.i][self.j].x >= 620) then
-              self.posEnd ="en"              
+       -- gemsTable[][].j :: gemsTable[][].i == point self // gemsTable[self.i][self.j] == data self VIP               
+               
+        if(gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640) then     --  jump end dont move
+            if(gemsTable[self.i][self.j].x <= 0) then
+                
+            elseif (gemsTable[self.i][self.j].x >= 640) then
+                -- slide point Ft
             else
                 print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
-            end 
-            pasteGem(self,event) 
+            end            
             --print("dd "..gemsTable[self.i][self.j].x)
         else  
             intervalGem = sizeGem + 8
@@ -185,16 +250,8 @@ function slideGem(self,event)
         end         
     elseif (self.chkFtPosit == "y") then -- ---- -- slide Y      
         self.slideEvent = (event.y - event.yStart)   
-        print("JUMP ".. gemsTable[self.i][self.j].y)--
-         if(gemsTable[self.i][self.j].y <= 455 or gemsTable[self.i][self.j].y >= 940) then        --  jump end dont move
-           if(gemsTable[self.i][self.j].y <= 455) then
-              self.posEnd ="st"                 
-           elseif (gemsTable[self.i][self.j].y >= 940) then
-              self.posEnd ="en"              
-           else
-                print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
-           end 
-            pasteGem(self,event) 
+         if(gemsTable[self.i][self.j].y <= 430 or gemsTable[self.i][self.j].y >= 960) then        --  jump end dont move
+           -----  jump bla bla
          else
             intervalGem = sizeGem + 8
             for posY = 1, gemY, 1 do                 
@@ -217,7 +274,11 @@ function slideGem(self,event)
          end
     else
         print ("Error SlideGem Func X Y")
-    end       
+    end  
+     
+        print("------------")
+        
+        checkMemory()
    
 end
 
@@ -252,9 +313,9 @@ function onGemTouch( self, event )	-- was pre-declared
        
        copyGem(self,event)      
        
-      state = display.newImageRect( "img/state_mission/water_spring.jpg", 640, 425)
-      state:setReferencePoint( display.TopLeftReferencePoint )
-      state.x, state.y = 0, 0
+--      state = display.newImageRect( "img/state_mission/water1.jpg", 640, 425)
+--      state:setReferencePoint( display.TopLeftReferencePoint )
+--      state.x, state.y = 0, 0
       
        print("began :"..self.x, self.y)
        
@@ -322,7 +383,7 @@ function scene:createScene( event )
     background.x, background.y = 0, 0        
     group:insert(background)      
     
-    local state = display.newImageRect( "img/state_mission/water_spring.jpg", 640, 425)
+    local state = display.newImageRect( "img/state_mission/water1.jpg", 640, 425)
     state:setReferencePoint( display.TopLeftReferencePoint )
     state.x, state.y = 0, 0
     group:insert(state) 
