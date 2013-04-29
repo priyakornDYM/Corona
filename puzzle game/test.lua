@@ -18,16 +18,18 @@ local mRandom = math.random
 
 local gemsTable = {}
 local picture = {"img/element/red.png",
-        "img/element/green.png",
-        "img/element/blue.png",
-        "img/element/purple.png",
-        "img/element/pink.png",
-        "img/element/yellow.png"}
+                        "img/element/green.png",
+                        "img/element/blue.png",
+                        "img/element/purple.png",
+                        "img/element/pink.png",
+                        "img/element/yellow.png"}
 
 local onGemTouch
 local sizeGem = 96
+local widthGem = 106
 local gemX, gemY = 6, 5
 local stTableX, enTableX = 3, 636
+
 
 
 
@@ -43,17 +45,8 @@ end
 
 local function newGem (i,j)    
     local R = mRandom(1,6)
-    local newGem  
-    local widthGem = 106
+    local newGem     
     
-
---    picture = {"img/element/red.png",
---        "img/element/green.png",
---        "img/element/blue.png",
---        "img/element/purple.png",
---        "img/element/pink.png",
---        "img/element/yellow.png"}
-
     newGem = display.newImageRect(picture[R],sizeGem,sizeGem)
     
     newGem.x = i * widthGem - 52    
@@ -129,20 +122,63 @@ function copyGem(self,event)
   
 end
 
-function pasteGem(self,event) 
+function pasteGem(self,event)     
    -- print("pasteGem")
---    print("position "..gemsTable[self.j][self.j].i," x "..gemsTable[self.j][self.j].markX)
-    
 --    1.slide position to real
 --    2.replace real gemX
 --    3.remove animetion copy gem
-   --print("x pos "..getmetatable[self.i][self.j].x)
-    
-    if(gemsTable[self.j][self.j].i <= 584 and gemsTable[self.j][self.j].i >= 478) then
-        gemsTable[self.j][self.j].x = gemsTable[self.j][self.j].x+20
-        print("x "..gemsTable[self.j][self.j].x)
+
+    if(self.chkFtPosit == "x") then
+--        channelX ={
+--                    54,    --1
+--                    160,  --2
+--                    266,  --3
+--                    372,  --4
+--                    478,  --5
+--                    584   --6
+--                 }       
+        positSt = gemsTable[self.i][self.j].i 
+        positEn = gemsTable[self.i][self.j].x
+        slideEvent = (event.x - event.xStart)        
+        
+        if(positEn > 533 ) then                 
+            chX = 584 + widthGem            
+            St = positSt + 1
+            
+            for posX = 1, gemX, 1 do
+                chX = chX - widthGem                  
+                gemsTable[posX][self.j].x = chX   
+                  
+                print("color ".. gemsTable[posX][self.j].colorR)
+            end
+                 
+        elseif (positEn > 427 and positEn < 533) then
+            if(slideEvent > 0) then       --R
+                --
+            else                                  --L
+                
+            end             
+        elseif (positEn > 319 and positEn < 427) then   
+        elseif (positEn > 216 and positEn < 319) then    
+        elseif (positEn > 111 and positEn < 216) then                             
+        end
+                  
+        print("slideEvent "..slideEvent," last position "..positEn)--
+       
+    elseif (self.chkFtPosit == "y") then
+--          channelY ={
+--                    479,  --1
+--                    585,  --2
+--                    691,  --3
+--                    797,  --4
+--                    903,  --5                  
+--                 }
+        --- bla bla y
+    else
+        print("just click dont move")
     end
-    
+        
+      
     
     for R = 1, gemX, 1 do 
         copyGemXR[R]:removeSelf()
@@ -155,20 +191,31 @@ function pasteGem(self,event)
     checkMemory()
 end
 
-function slideGem(self,event)  
-    if(self.chkFtPosit == "x") then ------- -- -- slide X    
-        centerGemSt = event.xStart
-        self.slideEvent = (event.x - event.xStart)
+function jumpGem(posit,RLUD)
+    print("jump " ..posit,RLUD)
+    
+--jumpGem:addEventListener( "cancelled", myListener ) 
+-- 
+
+--local event = { name="cancelled"} 
+--jumpGem:dispatchEvent( event )
+    
+end
+
+function slideGem(self,event)    
+    if(self.chkFtPosit == "x") then ------- -- -- slide X              
+        self.slideEvent = (event.x - event.xStart)        
        -- gemsTable[][].j :: gemsTable[][].i == point self // gemsTable[self.i][self.j] == data self VIP                         
         if(gemsTable[self.i][self.j].x <= 20 or gemsTable[self.i][self.j].x >= 620) then     --  jump end dont move          
             if(gemsTable[self.i][self.j].x <= 20) then
-              self.posEnd ="st"                 
+                posEnd ="st"                 
             elseif (gemsTable[self.i][self.j].x >= 620) then
-              self.posEnd ="en"              
+                posEnd ="en"               
             else
                 print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
             end 
-            pasteGem(self,event) 
+            
+            jumpGem(gemsTable[self.i][self.j].i,posEnd) 
             --print("dd "..gemsTable[self.i][self.j].x)
         else  
             intervalGem = sizeGem + 8
@@ -179,8 +226,8 @@ function slideGem(self,event)
                     gemsTable[posX][self.j].x = gemsTable[posX][self.j].markX + self.slideEvent
                 end  
                 
-                copyGemXR[posX].x =  enTableX + gemsTable[posX][self.j].markX + self.slideEvent
-                copyGemXL[posX].x =  stTableX - gemsTable[posX][self.j].markX + self.slideEvent
+                copyGemXR[posX].x = enTableX + gemsTable[posX][self.j].markX + self.slideEvent
+                copyGemXL[posX].x = stTableX - gemsTable[posX][self.j].markX + self.slideEvent              
             end 
         end         
     elseif (self.chkFtPosit == "y") then -- ---- -- slide Y      
@@ -188,13 +235,14 @@ function slideGem(self,event)
         print("JUMP ".. gemsTable[self.i][self.j].y)--
          if(gemsTable[self.i][self.j].y <= 455 or gemsTable[self.i][self.j].y >= 940) then        --  jump end dont move
            if(gemsTable[self.i][self.j].y <= 455) then
-              self.posEnd ="st"                 
+                self.posEnd ="st"                 
            elseif (gemsTable[self.i][self.j].y >= 940) then
-              self.posEnd ="en"              
+                self.posEnd ="en"              
            else
                 print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
            end 
-            pasteGem(self,event) 
+           event.phase ="ended" 
+        ---   pasteGem(self,event) 
          else
             intervalGem = sizeGem + 8
             for posY = 1, gemY, 1 do                 
@@ -221,6 +269,11 @@ function slideGem(self,event)
    
 end
 
+function onTouchCancel(self,event)
+  --event.phase = "cancelled"
+  print("cancel")
+  
+end
 function onGemTouch( self, event )	-- was pre-declared   
    if event.phase == "began" then
        for  i = 1 ,gemX, 1 do
@@ -239,8 +292,7 @@ function onGemTouch( self, event )	-- was pre-declared
        
        self:setFillColor(100)
        
-       local widhtLineY, widhtLineX = 525, 620
-             
+       local widhtLineY, widhtLineX = 525, 620             
        local sizeLineStY, sizeLineStX = 695, 320
              
        lineY = display.newImageRect("img/other/bar_twin_v.png",100,widhtLineY)
@@ -252,12 +304,13 @@ function onGemTouch( self, event )	-- was pre-declared
        
        copyGem(self,event)      
        
-      state = display.newImageRect( "img/state_mission/water_spring.jpg", 640, 425)
-      state:setReferencePoint( display.TopLeftReferencePoint )
-      state.x, state.y = 0, 0
-      
-       print("began :"..self.x, self.y)
+       state = display.newImageRect( "img/state_mission/water_spring.jpg", 640, 425)
+       state:setReferencePoint( display.TopLeftReferencePoint )
+       state.x, state.y = 0, 0
+             
+       self.chkFtPosit =""  
        
+       print("began :"..self.x, self.y)
    elseif self.isFocus then
        
        if event.phase == "moved" then
@@ -292,11 +345,12 @@ function onGemTouch( self, event )	-- was pre-declared
            --print("x:"..posX.."evX:"..self.x.." y:"..posY.."evY:"..self.y)
            --print("slide "..gemsTable[6][self.j].x)
            slideGem(self,event)  --- old
-           
+                      
        elseif event.phase == "ended" or event.phase == "cancelled" then
-           --            print("end")   
-           self.chkFtPosit =""  
+          -- print("end")   
+           
            pasteGem(self,event)
+           self.chkFtPosit =""  
       
            display.getCurrentStage():setFocus( nil )
            self.isFocus = false

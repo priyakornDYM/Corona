@@ -190,34 +190,40 @@
 --
 --laser.blendMode = "screen"
 
-local cards = display.newGroup()     
-
-function bringToFront( event )
-    if event.phase == "began" then
-       event.target:toBack() 
-    end                         
-    return true
+--local cards = display.newGroup()     
+--
+--function bringToFront( event )
+--    if event.phase == "began" then
+--       event.target:toBack() 
+--    end                         
+--    return true
+--end
+--
+--for i=1,5 do
+--    local cardGroup = display.newGroup()
+--
+--    -- Card outline
+--    local cardRect = display.newRoundedRect(0, 0, 125, 175, 12)
+--    cardRect.strokeWidth = 2
+--    cardRect:setFillColor(255, 255, 255)    
+--    cardRect:setStrokeColor(0,0,0, 75)                                        
+--    cardGroup:insert(cardRect)
+--
+--    -- Card values
+--    local cardValue = display.newText(cardGroup, i, cardRect.contentWidth - 25, 0, native.systemFontBold, 24)     
+--    cardValue:setTextColor(255, 0, 0)
+--    local cardValue2 = display.newText(cardGroup, i, 0, cardRect.contentHeight - 40 , native.systemFontBold, 24)     
+--    cardValue2:setTextColor(255, 0, 0)       
+--
+--    cardGroup.x = (i * 25)      
+--
+--    cards:insert(cardGroup)
+--
+--    cardGroup:addEventListener("touch", bringToFront) 
+--end
+--
+local function handleLowMemory( event ) 
+  print( "memory warning received!" ) 
 end
-
-for i=1,5 do
-    local cardGroup = display.newGroup()
-
-    -- Card outline
-    local cardRect = display.newRoundedRect(0, 0, 125, 175, 12)
-    cardRect.strokeWidth = 2
-    cardRect:setFillColor(255, 255, 255)    
-    cardRect:setStrokeColor(0,0,0, 75)                                        
-    cardGroup:insert(cardRect)
-
-    -- Card values
-    local cardValue = display.newText(cardGroup, i, cardRect.contentWidth - 25, 0, native.systemFontBold, 24)     
-    cardValue:setTextColor(255, 0, 0)
-    local cardValue2 = display.newText(cardGroup, i, 0, cardRect.contentHeight - 40 , native.systemFontBold, 24)     
-    cardValue2:setTextColor(255, 0, 0)       
-
-    cardGroup.x = (i * 25)      
-
-    cards:insert(cardGroup)
-
-    cardGroup:addEventListener("touch", bringToFront) 
-end
+ 
+Runtime:addEventListener( "memoryWarning", handleLowMemory )
