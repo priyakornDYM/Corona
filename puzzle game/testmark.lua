@@ -222,8 +222,18 @@
 --    cardGroup:addEventListener("touch", bringToFront) 
 --end
 --
-local function handleLowMemory( event ) 
-  print( "memory warning received!" ) 
-end
- 
-Runtime:addEventListener( "memoryWarning", handleLowMemory )
+--local function handleLowMemory( event ) 
+--  print( "memory warning received!" ) 
+--end
+-- 
+--Runtime:addEventListener( "memoryWarning", handleLowMemory )
+
+object = display.newImageRect( "img/element/green.png",96,96 )
+
+object.x = 79
+object.y =187
+ object:removeSelf()
+object = display.newImage( "img/element/red.png",96,96 )
+
+object.x = 79
+object.y =250
