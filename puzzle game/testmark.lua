@@ -143,13 +143,13 @@
 ----lineX:setColor( 255, 255, 150, 255 )
 ----lineX.width = 3 
 --
--- local sizeGem= 48
---
---test=display.newImageRect("img/element/red.png",sizeGem, sizeGem)
---test.x,test.y=100,70
---test:setStrokeColor(140, 140, 140) 
---test.strokeWidth = 1
+ local sizeGem= 48
 
+test=display.newImageRect("img/element/red.png",sizeGem, sizeGem)
+test.x,test.y=100,70
+test:setStrokeColor(140, 140, 140) 
+test.strokeWidth = 
+--
 
 
 
@@ -228,12 +228,19 @@
 -- 
 --Runtime:addEventListener( "memoryWarning", handleLowMemory )
 
-object = display.newImageRect( "img/element/green.png",96,96 )
-
-object.x = 79
-object.y =187
- object:removeSelf()
-object = display.newImage( "img/element/red.png",96,96 )
-
-object.x = 79
-object.y =250
+--object = display.newImageRect( "img/element/green.png",96,96 )
+--
+--object.x = 79
+--object.y =187
+-- object:removeSelf()
+--object = display.newImage( "img/element/red.png",96,96 )
+--
+--object.x = 79
+--object.y =250
+--
+--local function spriteListener( event )
+--    print( event.name, event.sprite, event.phase, event.sprite.sequence )
+--end
+--
+ --Add sprite listener
+--object:addEventListener( "touch", spriteListener )

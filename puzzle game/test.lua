@@ -17,20 +17,22 @@ local _H = display.contentHeight    -- 960
 local mRandom = math.random
 
 local gemsTable = {}
-local picture = {"img/element/red.png",
-                        "img/element/green.png",
-                        "img/element/blue.png",
-                        "img/element/purple.png",
-                        "img/element/pink.png",
-                        "img/element/yellow.png"}
-
+local picture = { "img/element/red.png",
+                          "img/element/green.png",
+                          "img/element/blue.png",
+                          "img/element/purple.png",
+                          "img/element/pink.png",
+                          "img/element/yellow.png" }
 local onGemTouch
 local sizeGem = 96
 local widthGem = 106
 local gemX, gemY = 6, 5
 local stTableX, enTableX = 3, 636
 
-
+local numberOfMarkedToDestroy = 0
+local gemToBeDestroyed  	
+local isGemTouchEnabled = true 		
+local countSlide = 0
 
 
 
@@ -53,10 +55,11 @@ local function newGem (i,j)
     newGem.i = i
     newGem.j = j
 
---    newGem.ismarkRoworcolum = false    --##--
---    newGem.isMarkedToDestroy = false
+    newGem.ismarkRoworcolum = false    
+    newGem.isMarkedToDestroy = false
     
     newGem.destination_y = newGem.y
+  
     
     newGem.color = R
     if 	(R == 1 ) then
@@ -75,8 +78,7 @@ local function newGem (i,j)
 
     --new gem falling animation
     transition.to( newGem, { time=100, y= newGem.destination_y} )
-
-   -- groupGameLayer:insert( newGem )
+    groupGameLayer:insert( newGem )
 
 
     newGem.touch = onGemTouch
@@ -114,11 +116,9 @@ function copyGem(self,event)
   
 end
 
-function pasteGem(self,event)     
-   -- print("pasteGem")
---      1. remember position and color
---      2. remove all gems
---      3. create for remember  
+function pasteGem(self,event)    
+    countSlide = countSlide + 1
+    
     if(self.chkFtPosit == "x") then
         channelX = { 54,    --1
                           160,  --2
@@ -130,304 +130,169 @@ function pasteGem(self,event)
         positSt = gemsTable[self.i][self.j].i 
         positEn = gemsTable[self.i][self.j].x
         slideEvent = (event.x - event.xStart)    
-        
-        maxX = gemX
-        colorTmp ={}
-        color2 = {}
+             
+        colorTmp ={}      
         markY = gemsTable[self.i][self.j].markY    
         markJ = gemsTable[self.i][self.j].j 
+        slideL, slideR = 0, 0
         
         for posX = gemX, 1, -1 do   
-            colorTmp[posX] = gemsTable[posX][self.j].colorR   
-            markI = gemsTable[posX][self.j].i 
+            colorTmp[posX] = gemsTable[posX][self.j].colorR           
+            gemsTable[posX][self.j]:removeSelf()
         end
                 
         if(positEn > 533 ) then                  
-            for posX = gemX, 1, -1 do                
-              gemsTable[posX][self.j]:removeSelf()
-                if( posX == gemX) then      --
-                    if(positSt > 0)  then   --- L
-                        color = colorTmp[positSt - 0]     
-                        maxXTmp = positSt - 0                       
-                    else                        --- R
-                        color = colorTmp[positSt +1]       
-                        maxXTmp = positSt + 1                      
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end                      
-                end      
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)    
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end
-                             
-                gemsTable[posX][self.j].color = color               
-                gemsTable[posX][self.j].x = channelX[posX]   ---- chk
-                gemsTable[posX][self.j].y = markY    
-                gemsTable[posX][self.j].i = posX
-                gemsTable[posX][self.j].j = markJ                                          
-            end             
+            slideL = 0
+            slideR = 1
         elseif (positEn > 427 and positEn < 533) then  
-            for posX = gemX, 1, -1 do                    
-                gemsTable[posX][self.j]:removeSelf()
- 
-                  if( posX == gemX) then      
-                    if(positSt > 5)  then   --- L
-                        color = colorTmp[positSt - 5]     
-                        maxXTmp = positSt - 5
-                    else                        --- R
-                        color = colorTmp[positSt +1]       
-                        maxXTmp = positSt + 1
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end      
-                end        
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)                 
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end      
-
-                gemsTable[posX][self.j].color = color  
-                gemsTable[posX][self.j].x = channelX[posX] 
-                gemsTable[posX][self.j].y = markY                 
-                gemsTable[posX][self.j].j = markJ     
-                gemsTable[posX][self.j].i = posX            
-             end                 
+            slideL = 5
+            slideR = 1         
         elseif (positEn > 319 and positEn < 427) then   
-            for posX = gemX, 1, -1 do                    
-                gemsTable[posX][self.j]:removeSelf()
-   
-                if( posX == gemX) then      
-                    if(positSt > 4)  then   --- L
-                        color = colorTmp[positSt - 4]     
-                        maxXTmp = positSt - 4
-                    else                        --- R
-                        color = colorTmp[positSt +2]       
-                        maxXTmp = positSt + 2
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end      
-                end
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)                 
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end      
-
-                gemsTable[posX][self.j].color = color  
-                gemsTable[posX][self.j].x = channelX[posX] 
-                gemsTable[posX][self.j].y = markY                 
-                gemsTable[posX][self.j].j = markJ     
-                gemsTable[posX][self.j].i = posX            
-             end       
+            slideL = 4
+            slideR = 2          
         elseif (positEn > 216 and positEn < 319) then   
-            for posX = gemX, 1, -1 do                    
-                gemsTable[posX][self.j]:removeSelf()
-   
-                if( posX == gemX) then      
-                    if(positSt > 3)  then   --- L
-                        color = colorTmp[positSt - 3]     
-                        maxXTmp = positSt - 3
-                    else                        --- R
-                        color = colorTmp[positSt +3]       
-                        maxXTmp = positSt + 3
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end      
-                end
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)                 
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end      
-
-                gemsTable[posX][self.j].color = color  
-                gemsTable[posX][self.j].x = channelX[posX] 
-                gemsTable[posX][self.j].y = markY                 
-                gemsTable[posX][self.j].j = markJ     
-                gemsTable[posX][self.j].i = posX            
-             end     
-          
-        elseif (positEn > 111 and positEn < 216) then    -----
-          for posX = gemX, 1, -1 do                    
-                gemsTable[posX][self.j]:removeSelf()
-   
-                if( posX == gemX) then      
-                    if(positSt > 2)  then   --- L
-                        color = colorTmp[positSt - 2]     
-                        maxXTmp = positSt - 2                       
-                    else                        --- R
-                        color = colorTmp[positSt + 4]       
-                        maxXTmp = positSt + 4                 
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end      
-                end
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)                 
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end      
-
-                gemsTable[posX][self.j].color = color  
-                gemsTable[posX][self.j].x = channelX[posX] 
-                gemsTable[posX][self.j].y = markY                 
-                gemsTable[posX][self.j].j = markJ     
-                gemsTable[posX][self.j].i = posX            
-             end     
-          else-- R to L only
-               for posX = gemX, 1, -1 do                    
-                gemsTable[posX][self.j]:removeSelf()
-   
-                if( posX == gemX) then      
-                    if(positSt > 1)  then   --- L
-                        color = colorTmp[positSt - 1]     
-                        maxXTmp = positSt - 1                       
-                    else                        --- R
-                        color = colorTmp[positSt + 5]       
-                        maxXTmp = positSt + 5                           
-                    end                   
-                else                        
-                    if(maxXTmp == 1 ) then
-                        maxXTmp = gemX         
-                        color = colorTmp[maxXTmp]    
-                    else
-                        maxXTmp = maxXTmp - 1          
-                        color = colorTmp[maxXTmp]    
-                    end      
-                end
-                
-                gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)                 
-                
-                if 	(color == 1 ) then
-                    gemsTable[posX][self.j].gemType = "RED"                                   
-                elseif (color == 2 ) then
-                    gemsTable[posX][self.j].gemType = "GREEN"                   
-                elseif (color == 3 ) then
-                    gemsTable[posX][self.j].gemType = "BLUE"                    
-                elseif (color == 4 ) then
-                    gemsTable[posX][self.j].gemType = "PURPLE"                  
-                elseif (color == 5 ) then
-                    gemsTable[posX][self.j].gemType = "PINK"                   
-                elseif (color == 6 ) then
-                    gemsTable[posX][self.j].gemType = "YELLOW"                    
-                end      
-
-                gemsTable[posX][self.j].color = color  
-                gemsTable[posX][self.j].x = channelX[posX] 
-                gemsTable[posX][self.j].y = markY                 
-                gemsTable[posX][self.j].j = markJ     
-                gemsTable[posX][self.j].i = posX            
-             end 
-      end        
+            slideL = 3
+            slideR = 3        
+        elseif (positEn > 111 and positEn < 216) then   
+            slideL = 2
+            slideR = 4        
+        else-- R to L only
+            slideL = 1
+            slideR = 5        
+        end        
         -- for chk and loop
       --print("slideEvent "..slideEvent," last position "..positEn)
-      for posX = gemX, 1, -1 do   
-          gemsTable[posX][self.j].touch = onGemTouch
-          gemsTable[posX][self.j]:addEventListener( "touch", gemsTable[posX][self.j] )   
-      end
+        for posX = gemX, 1, -1 do   
+            if( posX == gemX) then      
+                if(positSt > slideL)  then   --- L
+                    color = colorTmp[positSt - slideL]     
+                    maxXTmp = positSt - slideL                       
+                else                        --- R
+                    color = colorTmp[positSt + slideR]       
+                    maxXTmp = positSt + slideR                      
+                end                   
+            else                        
+                if(maxXTmp == 1 ) then
+                    maxXTmp = gemX         
+                    color = colorTmp[maxXTmp]    
+                else
+                    maxXTmp = maxXTmp - 1          
+                    color = colorTmp[maxXTmp]    
+                end                      
+            end      
+            
+            gemsTable[posX][self.j] = display.newImageRect(picture[color],sizeGem,sizeGem)    
+            
+            if 	(color == 1 ) then
+                gemsTable[posX][self.j].gemType = "RED"                                   
+            elseif (color == 2 ) then
+                gemsTable[posX][self.j].gemType = "GREEN"                   
+            elseif (color == 3 ) then
+                gemsTable[posX][self.j].gemType = "BLUE"                    
+            elseif (color == 4 ) then
+                gemsTable[posX][self.j].gemType = "PURPLE"                  
+            elseif (color == 5 ) then
+                gemsTable[posX][self.j].gemType = "PINK"                   
+            elseif (color == 6 ) then
+                gemsTable[posX][self.j].gemType = "YELLOW"                    
+            end
+                         
+            gemsTable[posX][self.j].color = color               
+            gemsTable[posX][self.j].x = channelX[posX]   ---- chk
+            gemsTable[posX][self.j].y = markY    
+            gemsTable[posX][self.j].i = posX
+            gemsTable[posX][self.j].j = markJ     
+          
+            gemsTable[posX][self.j].touch = onGemTouch
+            gemsTable[posX][self.j]:addEventListener( "touch", gemsTable[posX][self.j] )   
+        end
        
     elseif (self.chkFtPosit == "y") then
---          channelY ={
---                    479,  --1
---                    585,  --2
---                    691,  --3
---                    797,  --4
---                    903,  --5                  
---                 }
-        --- bla bla y
+        channelY ={
+                  479,  --1
+                  585,  --2
+                  691,  --3
+                  797,  --4
+                  903,  --5                  
+               }
+        positSt = gemsTable[self.i][self.j].j 
+        positEn = gemsTable[self.i][self.j].y
+        slideEvent = (event.y - event.yStart)    
+             
+        colorTmp = {}      
+        markX = gemsTable[self.i][self.j].markX    
+        markI = gemsTable[self.i][self.j].i 
+        slideU, slideD = 0, 0 
+        
+        for posY = gemY, 1, -1 do   
+            colorTmp[posY] = gemsTable[self.i][posY].colorR              
+            gemsTable[self.i][posY]:removeSelf()
+        end
+        
+        if(positEn > 852 ) then 
+            slideU = 0 
+            slideD = 1           
+        elseif (positEn > 746 and positEn < 852) then  
+            slideU = 4 
+            slideD = 1                   
+        elseif (positEn > 640 and positEn < 746) then
+            slideU = 3 
+            slideD = 2                  
+        elseif (positEn > 534 and positEn < 640) then   
+            slideU = 2 
+            slideD = 3           
+        else-- U to D only
+            slideU = 1 
+            slideD = 4           
+        end     
+        --
+         for posY = gemY, 1, -1 do   
+            if( posY == gemY) then      
+                if(positSt > slideU)  then   --- U 
+                    color = colorTmp[positSt - slideU]     
+                    maxYTmp = positSt - slideU                       
+                else                        --- D
+                    color = colorTmp[positSt + slideD]       
+                    maxYTmp = positSt + slideD                      
+                end                   
+            else                        
+                if(maxYTmp == 1 ) then
+                    maxYTmp = gemY         
+                    color = colorTmp[maxYTmp]    
+                else
+                    maxYTmp = maxYTmp - 1          
+                    color = colorTmp[maxYTmp]    
+                end                      
+            end      
+            
+            gemsTable[self.i][posY] = display.newImageRect(picture[color],sizeGem,sizeGem)    
+            
+            if 	(color == 1 ) then
+                gemsTable[self.i][posY].gemType = "RED"                                   
+            elseif (color == 2 ) then
+                gemsTable[self.i][posY].gemType = "GREEN"                   
+            elseif (color == 3 ) then
+                gemsTable[self.i][posY].gemType = "BLUE"                    
+            elseif (color == 4 ) then
+                gemsTable[self.i][posY].gemType = "PURPLE"                  
+            elseif (color == 5 ) then
+                gemsTable[self.i][posY].gemType = "PINK"                   
+            elseif (color == 6 ) then
+                gemsTable[self.i][posY].gemType = "YELLOW"                    
+            end
+     
+            gemsTable[self.i][posY].color = color               
+            gemsTable[self.i][posY].x = markX  
+            gemsTable[self.i][posY].y = channelY[posY]     
+            gemsTable[self.i][posY].i = markI
+            gemsTable[self.i][posY].j = posY     
+
+            gemsTable[self.i][posY].touch = onGemTouch
+            gemsTable[self.i][posY]:addEventListener( "touch", gemsTable[self.i][posY] )   
+        end
     else
         print("just click dont move")
-    end
-  
-  
+    end 
   
     for R = 1, gemX, 1 do 
         copyGemXR[R]:removeSelf()
@@ -437,35 +302,20 @@ function pasteGem(self,event)
         copyGemYU[C]:removeSelf()
         copyGemYD[C]:removeSelf()
     end
+      lineY:removeSelf()
+      lineX:removeSelf()
+           
     checkMemory()
-end
-
-function jumpGem(posit,RLUD)
-    print("jump " ..posit,RLUD)
     
---jumpGem:addEventListener( "cancelled", myListener ) 
--- 
-
---local event = { name="cancelled"} 
---jumpGem:dispatchEvent( event )
-    
+    lockGem(self,event)    
 end
 
 function slideGem(self,event)    
     if(self.chkFtPosit == "x") then ------- -- -- slide X              
         self.slideEvent = (event.x - event.xStart)        
        -- gemsTable[][].j :: gemsTable[][].i == point self // gemsTable[self.i][self.j] == data self VIP                         
-        if(gemsTable[self.i][self.j].x <= 20 or gemsTable[self.i][self.j].x >= 620) then     --  jump end dont move          
-            if(gemsTable[self.i][self.j].x <= 20) then
-                posEnd ="st"                 
-            elseif (gemsTable[self.i][self.j].x >= 620) then
-                posEnd ="en"               
-            else
-                print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
-            end 
-            print("over screen ".. gemsTable[self.i][self.j].x)
-            jumpGem(gemsTable[self.i][self.j].i,posEnd) 
-            --print("dd "..gemsTable[self.i][self.j].x)
+        if(gemsTable[self.i][self.j].x <= 20 or gemsTable[self.i][self.j].x >= 620) then     --  jump end dont move                  
+            pasteGem(self,event) 
         else  
             intervalGem = sizeGem + 8
             for posX = 1, gemX, 1 do                 
@@ -482,16 +332,8 @@ function slideGem(self,event)
     elseif (self.chkFtPosit == "y") then -- ---- -- slide Y      
         self.slideEvent = (event.y - event.yStart)   
        -- print("JUMP ".. gemsTable[self.i][self.j].y)--
-         if(gemsTable[self.i][self.j].y <= 455 or gemsTable[self.i][self.j].y >= 940) then        --  jump end dont move
-           if(gemsTable[self.i][self.j].y <= 455) then
-                self.posEnd ="st"                 
-           elseif (gemsTable[self.i][self.j].y >= 940) then
-                self.posEnd ="en"              
-           else
-                print ("Error slideGem gemsTable[self.i][self.j].x <= 0 or gemsTable[self.i][self.j].x >= 640")
-           end 
-       
-        ---   pasteGem(self,event) 
+         if(gemsTable[self.i][self.j].y <= 455 or gemsTable[self.i][self.j].y >= 940) then        --  jump end dont move         
+              pasteGem(self,event) 
          else
             intervalGem = sizeGem + 8
             for posY = 1, gemY, 1 do                 
@@ -506,11 +348,8 @@ function slideGem(self,event)
                 copyGemYU[posY].y = enTableY + gemsTable[self.i][posY].markY + self.slideEvent
                 
                 copyGemYD[posY].x = gemsTable[self.i][posY].markX 
-                copyGemYD[posY].y = stTableY - gemsTable[self.i][posY].markY + self.slideEvent
-   
-            end 
-            
-           
+                copyGemYD[posY].y = stTableY - gemsTable[self.i][posY].markY + self.slideEvent   
+            end           
          end
     else
         print ("Error SlideGem Func X Y")
@@ -518,8 +357,136 @@ function slideGem(self,event)
    
 end
 
-function lockGem(self,event)
-      -- lock gem
+local function shiftGems () 
+      print ("Shifting Gems")
+      -- first roww
+      for i = 1, gemX, 1 do
+          if gemsTable[i][1].isMarkedToDestroy then           
+              gemToBeDestroyed = gemsTable[i][1]              
+              
+              gemsTable[i][1] = newGem(i,1)
+                          
+              gemToBeDestroyed:removeSelf()
+              gemToBeDestroyed = nil
+          end
+      end
+	-- rest of the rows
+      for j = 2, gemY, 1 do  -- j = row number - need to do like this it needs to be checked row by row
+          for i = 1, gemX, 1 do            
+              if gemsTable[i][j].isMarkedToDestroy then --if you find and empty hole then shift down all gems in column
+                  gemToBeDestroyed = gemsTable[i][j]                   
+                  for k = j, 2, -1 do -- starting from bottom - finishing at the second row                
+                      gemsTable[i][k] = gemsTable[i][k-1]
+                      gemsTable[i][k].destination_y = gemsTable[i][k].destination_y +40
+                      transition.to( gemsTable[i][k], { time=100, y= gemsTable[i][k].destination_y} )
+                                     
+                      gemsTable[i][k].j = gemsTable[i][k].j + 1                
+                  end
+              
+                  gemsTable[i][1] = newGem(i,1)
+
+                  gemToBeDestroyed:removeSelf()
+                  gemToBeDestroyed = nil
+              end 
+          end
+      end
+end --shiftGems()
+
+local function markToDestroy( self )            
+      self.isMarkedToDestroy = true
+      numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
+            
+      print("count ".. countSlide .." i"..gemsTable[self.i][self.j].i.." j"..gemsTable[self.i][self.j].j )
+      
+      if self.i>1 then
+        
+      end
+  --    -- check on the left
+--      if self.i>1 then
+--          if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false then
+--              if (gemsTable[self.i-1][self.j]).gemType == self.gemType then
+--                  markToDestroy( gemsTable[self.i-1][self.j] )
+--                  gemsTable[self.i-1][self.j]:setStrokeColor(140, 140, 140)               
+--                  gemsTable[self.i-1][self.j].strokeWidth = 5
+--              end	 
+--          end
+--      end
+--
+--      -- check on the right
+--      if self.i<gemX then
+--          if (gemsTable[self.i+1][self.j]).isMarkedToDestroy == false then
+--              if (gemsTable[self.i+1][self.j]).gemType == self.gemType then
+--                  markToDestroy( gemsTable[self.i+1][self.j] )
+--                  gemsTable[self.i+1][self.j]:setStrokeColor(140, 140, 140)               
+--                  gemsTable[self.i+1][self.j].strokeWidth = 5
+--              end	 
+--          end
+--      end
+--
+--      -- check above
+--      if self.j>1 then
+--          if (gemsTable[self.i][self.j-1]).isMarkedToDestroy == false then
+--              if (gemsTable[self.i][self.j-1]).gemType == self.gemType then
+--                  markToDestroy( gemsTable[self.i][self.j-1] )
+--                  gemsTable[self.i][self.j-1]:setStrokeColor(140, 140, 140)               
+--                  gemsTable[self.i][self.j-1].strokeWidth = 5
+--              end	 
+--          end
+--      end
+--
+--      -- check below
+--      if self.j<gemY then
+--          if (gemsTable[self.i][self.j+1]).isMarkedToDestroy== false then
+--              if (gemsTable[self.i][self.j+1]).gemType == self.gemType then
+--                  markToDestroy( gemsTable[self.i][self.j+1] )
+--                  gemsTable[self.i][self.j+1]:setStrokeColor(140, 140, 140)               
+--                  gemsTable[self.i][self.j+1].strokeWidth = 5
+--              end	 
+--          end
+--      end
+      
+      --print(numberOfMarkedToDestroy.." ".. gemsTable[self.i][self.j].gemType,gemsTable[self.i][self.j].i)--
+end
+
+local function enableGemTouch()
+
+	isGemTouchEnabled = true
+end
+
+
+local function destroyGems()
+	print ("Destroying Gems. Marked to Destroy = "..numberOfMarkedToDestroy)
+  
+	for i = 1, gemX, 1 do
+      for j = 1, gemY, 1 do        
+          if gemsTable[i][j].isMarkedToDestroy then
+
+            isGemTouchEnabled = false
+            transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
+          end
+      end
+	end
+  
+	numberOfMarkedToDestroy = 0
+	timer.performWithDelay( 320, shiftGems )
+
+end
+
+function lockGem(self,event)      
+      markToDestroy(self)
+     
+      if numberOfMarkedToDestroy >= 4 then
+          print("destroy : " ..numberOfMarkedToDestroy)
+          destroyGems()        
+      else 
+      --    print("     dont lock but count round to attack a monster")      
+          print("not more")
+      end      
+end
+
+function formulaMission(self,event)
+      print("formula")
+      
 end
 
 function onTouchCancel(self,event)
@@ -551,7 +518,7 @@ function onGemTouch( self, event )	-- was pre-declared
        
        lineX = display.newImageRect("img/other/bar_twin_h.png", widhtLineX, 100)       
        lineX.x, lineX.y = sizeLineStX, self.markY
-       
+            
        copyGem(self, event)      
        
        state = display.newImageRect( "img/state_mission/water_spring.jpg", 640, 425)
@@ -605,13 +572,9 @@ function onGemTouch( self, event )	-- was pre-declared
            display.getCurrentStage():setFocus( nil )
            self.isFocus = false
            
-           self:setFillColor(255)
+           self:setFillColor(255)             
            
---           if lineY ~= nil then
---                lineY:removeSelf()
---            end
-           lineY:removeSelf()
-           lineX:removeSelf()
+           lockGem(self,event)
        end
     end
     return true
@@ -620,6 +583,9 @@ end
 function scene:createScene( event )     
     print("--------------main puzzle----------------")
     checkMemory()
+    
+    groupGameLayer = display.newGroup()
+    
     local group = self.view
     
     local background = display.newImageRect( "img/background/bg_puzzle_test.tga", _W, _H )
