@@ -230,9 +230,9 @@ function pasteGem(self,event)
         markI = gemsTable[self.i][self.j].i 
         slideU, slideD = 0, 0 
         
---        if ( slideEvent > 60 or slideEvent < -60) then
---            countSlide = countSlide +1
---        end
+        if ( slideEvent > 60 or slideEvent < -60) then
+            countSlide = countSlide +1
+        end
         
         for posY = gemY, 1, -1 do   
             colorTmp[posY] = gemsTable[self.i][posY].colorR              
@@ -407,19 +407,19 @@ local function markToDestroy( self )
       numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
             
       print("count ".. countSlide .." i"..gemsTable[self.i][self.j].i.." j"..gemsTable[self.i][self.j].j )
-      print("y" .. gemsTable[self.i][self.j].y)
-  
---     savePosMark = 0
---      if( self.chkFtPosit == "x" ) then       
---          for i = 1, gemX, 1 do   
---              
---          end           
---      elseif ( self.chkFtPosit == "y" ) then
---         -- chk y bla blas
---      else
---          print("-- not  send chkFtPosit")       
---      end
---      
+      print("y" .. gemsTable[self.i][self.j].y)       
+       
+     savePosMark = 0
+      if( self.chkFtPosit == "x" ) then       
+          for i = 1, gemX, 1 do   
+              
+          end 
+      elseif ( self.chkFtPosit == "y" ) then
+         -- chk y bla blas
+      else
+          print("-- not  send chkFtPosit")       
+      end
+      
   --    -- check on the left
       if self.i>1 then
           if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false then
