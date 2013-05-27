@@ -268,3 +268,67 @@ transition.to( square, { time=500, delay=2500, alpha=1.0, onComplete=listener2 }
 --
  --Add sprite listener
 --object:addEventListener( "touch", spriteListener )
+
+
+
+local function markToDestroyORi( self )       
+      print(">>>>>> count ".. countSlide .." i"..gemsTable[self.i][self.j].i.." j"..gemsTable[self.i][self.j].j )
+           -- check on the left
+      self.isMarkedToDestroy = true
+      
+      if self.i>1 then
+        print("i"..self.i-1 .."j"..self.j.."self.i-1color ".. gemsTable[self.i-1][self.j].gemType)
+          if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false  then    
+              print("isMark")
+              if (gemsTable[self.i-1][self.j]).gemType == self.gemType then   
+                  print("self.gemType ".. self.gemType)
+                  numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
+                  markToDestroy( gemsTable[self.i-1][self.j] )
+              end	   
+          else     --- testy                     
+              print("notMark "..self.i-1,self.j)
+          end
+      end
+
+      -- check on the right
+      if self.i<gemX then         
+     --   print("i"..self.i+1 .."j"..self.j.."self.i+1color ".. gemsTable[self.i+1][self.j].gemType)
+          if (gemsTable[self.i+1][self.j]).isMarkedToDestroy == false  then              
+              if (gemsTable[self.i+1][self.j]).gemType == self.gemType then        
+                  numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
+                  markToDestroy( gemsTable[self.i+1][self.j] )
+              end	 
+          else     --- testy             
+              print("notMark "..self.i+1,self.j)
+          end
+      end
+
+      -- check above
+      if self.j>1 then
+     --   print("i"..self.i.."j"..self.j-1 .."self.j-1color ".. gemsTable[self.i][self.j-1].gemType)
+          if (gemsTable[self.i][self.j-1]).isMarkedToDestroy == false  then                  
+              if (gemsTable[self.i][self.j-1]).gemType == self.gemType then      
+                  numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
+                  markToDestroy( gemsTable[self.i][self.j-1] )
+              end	 
+          else     --- testy                       
+              print("notMark "..self.i,self.j-1)
+          end
+      end
+
+      -- check below
+      if self.j<gemY then
+    --     print("i"..self.i .."j"..self.j+1 .."self.j+1color ".. gemsTable[self.i][self.j+1].gemType)
+          if (gemsTable[self.i][self.j+1]).isMarkedToDestroy== false  then   
+              if (gemsTable[self.i][self.j+1]).gemType == self.gemType then     
+                  numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1
+                  markToDestroy( gemsTable[self.i][self.j+1] )
+              end	 
+          else     --- testy
+              
+              print("notMark "..self.i,self.j+1)              
+          end
+      end  
+     
+  --print(numberOfMarkedToDestroy.." ".. gemsTable[self.i][self.j].gemType,gemsTable[self.i][self.j].i)
+end
