@@ -12,6 +12,19 @@ settings = {
 		plist = {
 			UIStatusBarHidden = false,
 			UIPrerenderedIcon = true, -- set to false for "shine" overlay
+      
+      CFBundleIconFiles= {
+                "Icon.png",                --iPhone 3G, 57x57
+                "Icon@2x.png",            --iPhone 4, 114x114
+                "Icon-iPad.png",        --iPad, 72x72
+                "Icon-iPad@2x.png",        --iPad 3, 144x144
+                
+                "Icon-Small.png",        --iPhone 3G, 29x29
+                "Icon-Small@2x.png",    --iPhone 4, 58x58
+                "Icon-Small-50.png",    --iPad, 50x50
+                "Icon-Small-50@2x.png",    --iPad 3, 100x100
+                },    
+                
 			--UIApplicationExitsOnSuspend = true, -- uncomment to quit app on suspend
 
             --[[

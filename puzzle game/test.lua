@@ -466,10 +466,10 @@ local function markLR(self,i,j)
                         print(chkMaxY)
       if (chkMaxY > 0) then
           local chkL = i - 1              
-    print("chkL "..chkL)
+    print("chkL"..chkL,i,j.." :: "..chkL,j-1)
           while chkL > 0  and chkL <= gemX  and gemsTable[i][j-1].gemType == gemsTable[chkL][j-1].gemType do                                                         
               gemsTable[chkL][j-1].isMarkedToDestroy = true  --- main     
-            
+           
               markPreDestory(chkL,j-1)    
               local chkLJ = j-2
           print("chkLJ!0  ".. chkLJ)
@@ -480,8 +480,8 @@ local function markLR(self,i,j)
                       print("gemType"..gemsTable[chkL][j-2].gemType.." ij "..chkL,j-2)
                        markPreDestory(chkL,j-2)   
                        
-                      markLR(self,chkL,j-2) --- simple FATCAT
-                      print("eee" ..chkL,j-2) 
+                      markLR(self,chkL,j-1) --- simple FATCAT
+                      print("eee" ..chkL,j-1) --
                   end
               end
             
@@ -807,6 +807,10 @@ function onGemTouch( self, event )	-- was pre-declared
        
        print("began :"..self.x, self.y)
        print("i".. gemsTable[self.i][self.j].i.."j" ..gemsTable[self.i][self.j].j )
+       print("start".. event.xStart)
+       print("mark".. self.markX )
+       
+     --  local ftCilck = ""
    elseif self.isFocus then       
        if event.phase == "moved" then
            local posX = (event.x - event.xStart) + self.markX      
@@ -814,23 +818,42 @@ function onGemTouch( self, event )	-- was pre-declared
              
            local pathY = event.y-event.yStart
            local pathX = event.x-event.xStart                 
+    
+           if ( posY == self.markY or self.chkFtPosit == "x" ) then -- move X        
+              if(self.chkFtPosit == "y" ) then
+                  posX = self.markX
+                  posY = event.y
+                
+                  self.chkFtPosit ="y"     
+              else
+                  posX = event.x
+                  posY = self.markY
+                
+                  self.chkFtPosit ="x"    
+              end                      
+           elseif ( posX == self.markX or self.chkFtPosit == "y"  ) then -- move Y
+              if(self.chkFtPosit == "x" ) then
+                  posX = event.x
+                  posY = self.markY
               
-           if ( posY == self.markY or self.chkFtPosit == "x") then -- move X
-               posX = event.x
-               posY = self.markY
-               self.chkFtPosit ="x"                               
-           elseif ( posX == self.markX or self.chkFtPosit == "y") then -- move Y
-               posX = self.markX
-               posY = event.y
-               self.chkFtPosit ="y"                            
+                  self.chkFtPosit ="x"    
+              else
+                  posX = self.markX
+                  posY = event.y
+             
+                  self.chkFtPosit ="y"                     
+              end
+
            else
-               if (pathY < pathX) then-- move X
+               if (pathY < pathX  and self.chkFtPosit =="") then-- move X
                    posX = event.x
                    posY = self.markY
+                   print("|xxxx")
                    self.chkFtPosit ="x" 
-               else
+               elseif (pathY > pathX  and self.chkFtPosit =="") then
                    posX = self.markX-- move Y
                    posY = event.y
+                   print("|yyyy")
                    self.chkFtPosit ="y" 
                end           
            end
@@ -838,8 +861,9 @@ function onGemTouch( self, event )	-- was pre-declared
            self.x, self.y = posX, posY  
            --print("x:"..posX.."evX:"..self.x.." y:"..posY.."evY:"..self.y)
            --print("slide "..gemsTable[6][self.j].x)
+             
            slideGem(self,event)  --- old
-                      
+     
        elseif event.phase == "ended" or event.phase == "cancelled" then
            print("end ".. self.chkFtPosit)   
            
