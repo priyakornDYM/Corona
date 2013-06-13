@@ -86,7 +86,6 @@ end
 local function handleLowMemory( event )
     print( "memory warning received!" )
 end
-
 Runtime:addEventListener( "memoryWarning", handleLowMemory )
 
 local function checkMemory()
@@ -444,178 +443,6 @@ local function shiftGems ()
       end
 end --shiftGems()
 
-local function markPreDestory (i,j)
-     --print("markPreDestory ".. gemsTable[i][j].gemType)
-      if (gemsTable[i][j].gemType == "RED") then
-          groupGem[1] = groupGem[1] + 1 
-      elseif (gemsTable[i][j].gemType == "GREEN") then
-          groupGem[2] = groupGem[2] + 1 
-      elseif (gemsTable[i][j].gemType == "BLUE") then
-          groupGem[3] = groupGem[3] + 1 
-      elseif (gemsTable[i][j].gemType == "PURPLE") then
-          groupGem[4] = groupGem[4] + 1 
-      elseif (gemsTable[i][j].gemType == "PINK") then
-          groupGem[5] = groupGem[5] + 1 
-      elseif (gemsTable[i][j].gemType == "YELLOW") then
-          groupGem[6] = groupGem[6] + 1 
-      end 
-end
-
-local function markLR(self,i,j)      
-      local chkMaxY =j -1
-                        print(chkMaxY)
-      if (chkMaxY > 0) then
-          local chkL = i - 1              
-    print("chkL"..chkL,i,j.." :: "..chkL,j-1)
-          while chkL > 0  and chkL <= gemX  and gemsTable[i][j-1].gemType == gemsTable[chkL][j-1].gemType do                                                         
-              gemsTable[chkL][j-1].isMarkedToDestroy = true  --- main     
-           
-              markPreDestory(chkL,j-1)    
-              local chkLJ = j-2
-          print("chkLJ!0  ".. chkLJ)
-              if(chkLJ ~= 0) then
-                  print("ffff"..i,j)  
-                  if (gemsTable[chkL][j-1].gemType == gemsTable[chkL][j-2].gemType) then
-                      gemsTable[chkL][j-2].isMarkedToDestroy = true  --- main     
-                      print("gemType"..gemsTable[chkL][j-2].gemType.." ij "..chkL,j-2)
-                       markPreDestory(chkL,j-2)   
-                       
-                      markLR(self,chkL,j-1) --- simple FATCAT
-                      print("eee" ..chkL,j-1) --
-                  end
-              end
-            
-              chkL = chkL - 1                             
-          end
-          
-          local chkR =  i + 1                       
-          while chkR > 0  and chkR <= gemX  and gemsTable[i][j-1].gemType == gemsTable[chkR][j-1].gemType do                                                           
-              gemsTable[chkR][j-1].isMarkedToDestroy = true  --- main                                        
-              markPreDestory(chkR,j-1)    
-              local chkRJ = j-2
-              
-              if(chkRJ ~= 0) then                                           
-                  if (gemsTable[chkR][j-1].gemType == gemsTable[chkR][j-2].gemType) then
-                      gemsTable[chkR][j-2].isMarkedToDestroy = true  --- main     
-                      markPreDestory(chkR,j-2)   
-                        markLR(self,chkR,j-2) --- simple FATCAT
-                  end                                          
-              end
-              
-              chkR = chkR + 1                             
-          end    
-      else
-          
-      end
-      
-end
-
-local function markToDestroy(self)
- -- checkMemory()  
-      self.startGem = self.startGem+1           
-     -- print(">>>>>> count "..self.startGem ,self.chkFtPosit) -- now  
-      
-      if(self.chkFtPosit == "x") then                    
-          if(self.startGem > gemX and self.rndGem == 1) then
-              self.rndGem = 2
-              self.startGem = 1          
-              self.startGemY = self.j       
-          elseif (self.startGem > gemX and self.rndGem == 2) then
-              self.rndGem = 3
-              self.startGem = 1
-              self.startGemY = self.j              
-          end
-                  
-          if self.startGem <= gemX  and self.rndGem == 1 then       ---- chk x          
-             print(">>>>>> count "..self.startGem ,self.chkFtPosit) -- now  
-      
-              if (gemsTable[self.startGem][self.j]).isMarkedToDestroy == false  then              
-                  if gemsTable[self.startGem][self.j].gemType == gemsTable[self.startGem-1][self.j].gemType  then        
-                     -- numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1    
-                      gemsTable[self.startGem-1][self.j].isMarkedToDestroy = true   --- main
-                      gemsTable[self.startGem][self.j].isMarkedToDestroy = true
-
-                      markPreDestory(self.startGem-1,self.j)
-                  end	                   
-                  markToDestroy( self )
-              end 
-          elseif self.startGem <= gemX  and self.rndGem == 2 and self.startGemY > 0 then       ---- chk y up 
-              print("like : " ..  self.startGem, self.startGemY)                
-              
-              local chkUp =  self.startGemY-1             
-              local chkDown =  self.startGemY+1
-                 
-            --  if (chkUp > 0) then      
-                  for  i = 1 ,gemX, 1 do
-                      for  j = self.startGemY , 1, -1 do    
-                          local chkMaxY =j -1
-                        
-                          if (chkMaxY > 0) then
-                              if gemsTable[i][j-1].isMarkedToDestroy == false  then                                    
-                                  if gemsTable[i][j].gemType == gemsTable[i][j-1].gemType and gemsTable[i][self.startGemY].gemType == gemsTable[i][j-1].gemType then                                         
-                                     
-                                      gemsTable[i][j-1].isMarkedToDestroy = true   --- main
-                                      gemsTable[i][j].isMarkedToDestroy = true
-              
-                                      markPreDestory(i,j-1)                                     
-                                                                       
-                                      markLR(self,i,j)
-                                       print("out loop")
- --                                     local chkL = i - 1                         
---                                      while chkL > 0  and chkL <= gemX  and gemsTable[i][j-1].gemType == gemsTable[chkL][j-1].gemType do                                                         
---                                          gemsTable[chkL][j-1].isMarkedToDestroy = true  --- main     
---                                          markPreDestory(chkL,j-1)    
---                                          local chkLJ = j-2
---                                          
---                                          if(chkLJ ~= 0) then
---                                              if (gemsTable[chkL][j-1].gemType == gemsTable[chkL][j-2].gemType) then
---                                                  gemsTable[chkL][j-2].isMarkedToDestroy = true  --- main     
---                                                  markPreDestory(chkL,j-2)       
---                                              end
---                                          end
---                                        
---                                          chkL = chkL - 1                             
---                                      end
-                                      
-                                     -- local chkR =  i + 1                       
---                                      while chkR > 0  and chkR <= gemX  and gemsTable[i][j-1].gemType == gemsTable[chkR][j-1].gemType do                                                           
---                                          gemsTable[chkR][j-1].isMarkedToDestroy = true  --- main                                        
---                                          markPreDestory(chkR,j-1)    
---                                          local chkRJ = j-2
---                                          
---                                          if(chkRJ ~= 0) then                                           
---                                              if (gemsTable[chkR][j-1].gemType == gemsTable[chkR][j-2].gemType) then
---                                                  gemsTable[chkR][j-2].isMarkedToDestroy = true  --- main     
---                                                  markPreDestory(chkR,j-2)                                           
---                                              end                                          
---                                          end
---                                          
---                                          chkR = chkR + 1                             
---                                      end    
-                                  elseif  (j == self.startGemY) then                         
-                                      break                                      
-                                  end   --chkin                        
-                          --        markToDestroy( self )                       
-                              end  -- false                           
-                          end -- chkMaxY
-                      end --j
-                  end --i
-                  
-
-                  
-         --     end  -- end chkUp
-              
-          end -- end chk y up 
-          
-          
-            
-      elseif (self.chkFtPosit == "y") then
-          -- bla position Y
-      else 
-          print(" self.chkFtPosit empry" ..self.gemType)
-      end      
-end
-
 local function enableGemTouch()
       isGemTouchEnabled = true
 end
@@ -623,25 +450,64 @@ end
 local function destroyGems(self)
 	print ("Destroying Gems. Marked to Destroy = "..numberOfMarkedToDestroy)
   --print("self ".. self.i.. ":".. self.j)
-	for i = 1, gemX, 1 do
-      for j = 1, gemY, 1 do        
-          if gemsTable[i][j].isMarkedToDestroy then      
-              gemsTable[i][j]:setStrokeColor(140, 140, 140)               
-              gemsTable[i][j].strokeWidth = 7  
-              gemsTable[i][j]:setFillColor(150)              
-                           
-              --isGemTouchEnabled = false
-             -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
-          end
-      end
-	end
+
+--  for i = 1, 6, 1 do
+--      if groupGem[i] > 4 then
+--          local nameType
+--          if (i == 1) then
+--              nameType ="RED"
+--          elseif (i == 2) then
+--              nameType ="GREEN" 
+--          elseif (i == 3) then
+--              nameType ="BLUE"
+--          elseif (i == 4) then
+--              nameType ="PURPLE"
+--          elseif (i == 5) then
+--              nameType ="PINK" 
+--          elseif (i == 6) then
+--              nameType ="YELLOW" 
+--          end 
+--          --print("groupGem[i]".. groupGem[i])
+--          for i = 1, gemX, 1 do
+--            for j = 1, gemY, 1 do        
+--                if gemsTable[i][j].isMarkedToDestroy and gemsTable[i][j].gemType == nameType then      
+--                --  print("nameType"..nameType)
+--                    gemsTable[i][j]:setStrokeColor(140, 140, 140)               
+--                    gemsTable[i][j].strokeWidth = 7  
+--                    gemsTable[i][j]:setFillColor(150)       
+--                    
+--                    groupGem[i] = 0
+--                                 
+--                    --isGemTouchEnabled = false
+--                   -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
+--                end
+--            end
+--        end
+--      end
+--  end
+
+ for i = 1, gemX, 1 do
+            for j = 1, gemY, 1 do        
+                if gemsTable[i][j].isMarkedToDestroy  then      
+                --  print("nameType"..nameType)
+                    gemsTable[i][j]:setStrokeColor(140, 140, 140)               
+                    gemsTable[i][j].strokeWidth = 7  
+                    gemsTable[i][j]:setFillColor(150)       
+                    
+                    groupGem[i] = 0
+                                 
+                    --isGemTouchEnabled = false
+                   -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
+                end
+            end
+        end
+
   print("chk in"..numberOfMarkedToDestroy)
   
 	--numberOfMarkedToDestroy = 0 
 	--timer.performWithDelay( 320, shiftGems )
   checkMemory()
 end
-
 
 local function cleanUpGems()
 	print("Cleaning Up Gems")
@@ -659,6 +525,118 @@ local function cleanUpGems()
         gemsTable[i][j].isMarkedToDestroy = false
       end
 	end
+end
+
+local function markPreDestory (i,j,chkMuti) 
+--    print("markPreDestory ".. gemsTable[i][j].gemType)
+      if (gemsTable[i][j].gemType == "RED"  and chkMuti == 0) then
+          groupGem[1] = groupGem[1] + 1           
+      elseif (gemsTable[i][j].gemType == "GREEN" and chkMuti == 0) then
+          groupGem[2] = groupGem[2] + 1 
+      elseif (gemsTable[i][j].gemType == "BLUE"  and chkMuti == 0) then
+          groupGem[3] = groupGem[3] + 1 
+      elseif (gemsTable[i][j].gemType == "PURPLE"  and chkMuti == 0) then
+          groupGem[4] = groupGem[4] + 1 
+      elseif (gemsTable[i][j].gemType == "PINK"  and chkMuti == 0) then
+          groupGem[5] = groupGem[5] + 1 
+      elseif (gemsTable[i][j].gemType == "YELLOW"  and chkMuti == 0) then
+          groupGem[6] = groupGem[6] + 1 
+      end 
+end
+
+local function markToDestroy( self, chkMuti)   
+  if(chkMuti == 1) then ----   ถึงตอนนี้กลุุ่มต่างกัน จะทำยังไงให้มันแยก ออกมา chkMuti
+      self.isMarkedToDestroy = false    
+      numberOfMarkedToDestroy = numberOfMarkedToDestroy - 1
+      print(self.gemType,numberOfMarkedToDestroy,self.i,self.j)
+  else 
+      self.isMarkedToDestroy = true  
+      numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1      
+        print(self.gemType)--
+  end
+  
+	if self.i>1 then
+      if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false or chkMuti == 1 then
+          if (gemsTable[self.i-1][self.j]).gemType == self.gemType then
+              markPreDestory (self.i-1,self.j,chkMuti)             
+              markToDestroy( gemsTable[self.i-1][self.j] ,chkMuti)
+          end	        
+      end
+	end
+
+	if self.i<gemX then
+      if (gemsTable[self.i+1][self.j]).isMarkedToDestroy == false or chkMuti == 1 then
+          if (gemsTable[self.i+1][self.j]).gemType == self.gemType then
+              markPreDestory (self.i+1,self.j,chkMuti)
+              markToDestroy( gemsTable[self.i+1][self.j],chkMuti )
+          end	 
+      end
+	end
+
+	if self.j>1 then
+      if (gemsTable[self.i][self.j-1]).isMarkedToDestroy == false or chkMuti == 1 then
+          if (gemsTable[self.i][self.j-1]).gemType == self.gemType then
+              markPreDestory (self.i,self.j-1,chkMuti)             
+              markToDestroy( gemsTable[self.i][self.j-1] ,chkMuti)
+          end	 
+      end
+	end
+
+	if self.j<gemY then
+      if (gemsTable[self.i][self.j+1]).isMarkedToDestroy== false or chkMuti == 1 then
+          if (gemsTable[self.i][self.j+1]).gemType == self.gemType then
+              markPreDestory (self.i,self.j+1,chkMuti)
+              markToDestroy( gemsTable[self.i][self.j+1] ,chkMuti)
+          end	 
+      end
+	end
+end
+
+function chkGruopGem(self) --
+  --print("self.gemType"..self.gemType)
+      if (self.gemType == "RED") then
+          if groupGem[1]  >= 4 then  
+              print("RED"..groupGem[1])     
+         --     numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[1]
+          else
+              markToDestroy(self,1)--
+          end                          
+      elseif (self.gemType == "GREEN") then
+          if groupGem[2]  >= 4 then        
+             print("GREEN"..groupGem[2])         
+    --          numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[2]
+          else
+              markToDestroy(self,1)--
+          end     
+      elseif (self.gemType == "BLUE") then
+          if groupGem[3]  >= 4 then                             
+             print("BLUE"..groupGem[3])      
+    --          numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[3]
+                        else
+              markToDestroy(self,1)--
+          end     
+      elseif (self.gemType == "PURPLE") then
+          if groupGem[4]  >= 4 then                            
+             print("PURPLE"..groupGem[4])       
+    ---          numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[4]
+                        else
+              markToDestroy(self,1)-- --
+          end     
+      elseif (self.gemType == "PINK") then
+          if groupGem[5]  >= 4 then                              
+             print("PINK"..groupGem[5])          
+              numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[5]
+                        else
+              markToDestroy(self,1)--
+          end      
+      elseif (self.gemType == "YELLOW") then
+          if groupGem[6]  >= 4 then                            
+             print("YELLOW"..groupGem[6])    
+    --          numberOfMarkedToDestroy = numberOfMarkedToDestroy+groupGem[6]
+                        else
+              markToDestroy(self,1)--
+          end     
+      end     
 end
 
 function lockGem(self, event)          
@@ -703,24 +681,36 @@ function lockGem(self, event)
               else
                   print("-- not  send chkFtPosit")       
               end  
+
+           --   print("self.i"..self.i.." self.j"..self.j)
+            --  print("self.chkFtPosit "..self.chkFtPosit)
               
-              self.startGem = 1             
-              self.rndGem = 1
-              markToDestroy(self)
+              if (self.chkFtPosit=="x") then
+                  for stX = 1, gemX, 1 do
+                      self.i = stX
+                      self.gemType=gemsTable[self.i][self.j].gemType
+                
+                      --print("self.i"..self.i.." self.j"..self.j..self.gemType)                 
+                      markToDestroy(self,0)
+               
+                      chkGruopGem(self)                   
+                      --print("xxx".. self.gemType,numberOfMarkedToDestroy )                      
+                  end                    
+              elseif (self.chkFtPosit=="y" ) then
+                  for stY = 1, gemY, 1 do
+                      self.j = stY
+                      self.gemType=gemsTable[self.i][self.j].gemType                
+                 
+                        markToDestroy(self,0)
+
+                        chkGruopGem(self)                              
+                     -- print("yyy".. self.gemType,numberOfMarkedToDestroy )
+                  end  
+              else
+                  print("not heve self.chkFtPosit")                
+              end
 
 
-             --print("click i" ..self.i.."j"..self.j)
-              --- -- - checking
---              for  i = 1 ,gemX, 1 do
---                 for  j = 1 , gemY, 1 do           
---                     if(gemsTable[i][j].isMarkedToDestroy == false ) then
---                          print("ooooo "..gemsTable[i][j].i, gemsTable[i][j].j)
---                     else
---                          print("xxxxx "..gemsTable[i][j].i, gemsTable[i][j].j)
---                     end                    
---                 end
---             end
-             
              --print("destroy "..numberOfMarkedToDestroy)
               if numberOfMarkedToDestroy >= 4 then                      
                   destroyGems(self)       
@@ -771,8 +761,7 @@ function onGemTouch( self, event )	-- was pre-declared
        
        if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
           self:setFillColor(100)       
-       end
-      
+       end      
        
        widhtLineY, widhtLineX = 525, 620             
        sizeLineStY, sizeLineStX = 695, 320
@@ -801,15 +790,13 @@ function onGemTouch( self, event )	-- was pre-declared
        frame = display.newImageRect( "img/other/frame.png", 100, 100)
        frame:setReferencePoint( display.TopLeftReferencePoint )
        frame.x, frame.y = 10, 300     
-       
-        
+               
        self.chkFtPosit =""  
        
        print("began :"..self.x, self.y)
        print("i".. gemsTable[self.i][self.j].i.."j" ..gemsTable[self.i][self.j].j )
        print("start".. event.xStart)
        print("mark".. self.markX )
-       
      --  local ftCilck = ""
    elseif self.isFocus then       
        if event.phase == "moved" then
