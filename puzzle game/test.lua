@@ -32,6 +32,7 @@ local stTableX, enTableX = 3, 636
 local limitCount = 4
 local numberOfMarkedToDestroy = 0   ---- not use
 local groupGem = { 0, 0, 0, 0, 0, 0}
+local groupGemChk = { 0, 0, 0, 0, 0, 0}
 local groupGemTable=0
 local gemToBeDestroyed  	
 local isGemTouchEnabled = true 		
@@ -488,26 +489,29 @@ local function destroyGems(self)
 --      end
 --  end
 
- for i = 1, gemX, 1 do
-            for j = 1, gemY, 1 do        
-                if gemsTable[i][j].isMarkedToDestroy  then      
-                --  print("nameType"..nameType)
-                    gemsTable[i][j]:setStrokeColor(140, 140, 140)               
-                    gemsTable[i][j].strokeWidth = 7  
-                    gemsTable[i][j]:setFillColor(150)       
-                    
-                    groupGem[i] = 0
-                                 
-                    --isGemTouchEnabled = false
-                   -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
-                end
+    for i = 1, gemX, 1 do
+        for j = 1, gemY, 1 do        
+            if gemsTable[i][j].isMarkedToDestroy  then      
+            --  print("nameType"..nameType)
+                gemsTable[i][j]:setStrokeColor(140, 140, 140)               
+                gemsTable[i][j].strokeWidth = 7  
+                gemsTable[i][j]:setFillColor(150)                     
+                             
+                --isGemTouchEnabled = false
+               -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
             end
         end
+    end
 
   print("chk in"..numberOfMarkedToDestroy)
   
 	--numberOfMarkedToDestroy = 0 
 	--timer.performWithDelay( 320, shiftGems )
+  
+    for  pt = 1 , 6 , 1 do
+        groupGem[pt] =0
+    end  
+    
   checkMemory()
 end
 
@@ -527,47 +531,49 @@ local function cleanUpGems()
         gemsTable[i][j].isMarkedToDestroy = false
       end
 	end
+  
+    for  pt = 1 , 6 , 1 do
+        groupGem[pt] =0
+    end     
 end
 
 local function markPreDestory (i,j,chkMuti) 
     --print("markPreDestory ".. gemsTable[i][j].gemType)    
-      --groupGemTable = groupGemTable+1
-      
       if (gemsTable[i][j].gemType == "RED") then
           if (chkMuti == 0) then
-              groupGem[1] = groupGem[1] + 1      
+              groupGemChk[1] = groupGemChk[1] + 1      
           else
-              groupGem[1] = groupGem[1] - 1      
+              groupGemChk[1] = 0     
           end            
       elseif (gemsTable[i][j].gemType == "GREEN") then
           if (chkMuti == 0) then
-              groupGem[2] = groupGem[2] + 1      
+              groupGemChk[2] = groupGemChk[2] + 1      
           else
-              groupGem[2] = groupGem[2] - 1      
+              groupGemChk[2] = 0     
           end    
       elseif (gemsTable[i][j].gemType == "BLUE") then
           if (chkMuti == 0) then
-              groupGem[3] = groupGem[3] + 1      
+              groupGemChk[3] = groupGemChk[3] + 1      
           else
-              groupGem[3] = groupGem[3] - 1      
+              groupGemChk[3] = 0     
           end   
       elseif (gemsTable[i][j].gemType == "PURPLE") then
           if (chkMuti == 0) then
-              groupGem[4] = groupGem[4] + 1      
+              groupGemChk[4] = groupGemChk[4] + 1      
           else
-              groupGem[4] = groupGem[4] - 1      
+              groupGemChk[4] = 0      
           end   
       elseif (gemsTable[i][j].gemType == "PINK") then
           if (chkMuti == 0) then
-              groupGem[5] = groupGem[5] + 1      
+              groupGemChk[5] = groupGemChk[5] + 1      
           else
-              groupGem[5] = groupGem[5] - 1      
+              groupGemChk[5] = 0     
           end   
       elseif (gemsTable[i][j].gemType == "YELLOW") then
           if (chkMuti == 0) then
-              groupGem[6] = groupGem[6] + 1      
+              groupGemChk[6] = groupGemChk[6] + 1      
           else
-              groupGem[6] = groupGem[6] - 1      
+              groupGemChk[6] =0
           end   
       end 
 end
@@ -575,8 +581,7 @@ end
 local function markToDestroy(self, chkMuti)   
       self.isMarkedToDestroy = true  
   --    numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1      
-   --   print(self.gemType.."  FT come "..numberOfMarkedToDestroy)
-  
+  print("markToDestroy ".. gemsTable[self.i][self.j].gemType,chkMuti)
 	if self.i>1 then
       if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false then
           if (gemsTable[self.i-1][self.j]).gemType == self.gemType then
@@ -643,48 +648,92 @@ function chkGruopDel (self,chkMuti)
               markPreDestory (self.i,self.j+1,chkMuti)
               chkGruopDel( gemsTable[self.i][self.j+1] ,chkMuti)         
           end
-      end
+      end      
 end
 
-function chkGruopGem(self) 
-  --print("self.gemType"..self.gemType)
-      if (self.gemType == "RED") then
-          if groupGem[1]  >= 4 then  
-              print("RED"..groupGem[1])          
-          else            
+function chkGruopGem(self,kk) 
+  --print("self.gemType"..self.gemType) 
+  -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+  -- ปัญหา มันเรียงสี่ตัวแบบ บนสองล่างสองไม่ได้ เพราะ มันถูกเช็ดว่า isMarkedToDestroy = true ไปแล้ว มันเลยไม่ count ทำให้ 
+  -- groupGem เป็น 0 เลยเข้า chkGruopDel
+    if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
+                    print("1ooooo "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
+               else
+                    print("1xxxxx "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
+               end       
+      if (self.gemType == "RED") then 
+          print("RED "..groupGemChk[1],groupGem[1],kk)         
+          if groupGemChk[1]  >= 4 then
+              if (kk ~= "RED") then
+                  groupGem[1]= groupGem[1]+groupGemChk[1]                 
+              end 
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[1] == 0 then              
+          else       
               chkGruopDel (self,1)
-          end                          
+          end       
+          groupGemChk[1] = 0    
       elseif (self.gemType == "GREEN") then
-          if groupGem[2]  >= 4 then        
-             print("GREEN"..groupGem[2])            
+         print("GREEN "..groupGemChk[2],groupGem[2],kk)            
+          if groupGemChk[2]  >= 4 then       
+              if (kk ~= "GREEN") then
+                  groupGem[2]= groupGem[2]+groupGemChk[2]                
+              end   
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[2] == 0 then           
           else              
               chkGruopDel (self,1)
           end     
+          groupGemChk[2] = 0
       elseif (self.gemType == "BLUE") then
-          if groupGem[3]  >= 4 then                             
-             print("BLUE"..groupGem[3])       
+         print("BLUE "..groupGemChk[3],groupGem[3],kk)       
+          if groupGemChk[3]  >= 4 then  
+              if ( kk ~= "BLUE") then
+                  groupGem[3]= groupGem[3]+groupGemChk[3]                  
+              end
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[3] == 0 then           
           else          
               chkGruopDel (self,1)
           end     
+          groupGemChk[3] = 0
       elseif (self.gemType == "PURPLE") then
-          if groupGem[4]  >= 4 then                            
-             print("PURPLE"..groupGem[4])           
+        print("PURPLE "..groupGemChk[4],groupGem[4],kk) 
+          if groupGemChk[4]  >= 4 then    
+              if (kk ~= "PURPLE") then
+                  groupGem[4]= groupGem[4]+groupGemChk[4]                  
+              end     
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[4] == 0 then               
           else
               chkGruopDel (self,1)
           end     
+          groupGemChk[4] = 0
       elseif (self.gemType == "PINK") then
-          if groupGem[5]  >= 4 then                              
-             print("PINK"..groupGem[5])          
+        print("PINK "..groupGemChk[5],groupGem[5],kk)   
+          if groupGemChk[5]  >= 4 then    
+            if ( kk ~= "PINK") then              
+                groupGem[5]= groupGem[5]+groupGemChk[5]            
+            end 
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[5] == 0 then           
           else            
               chkGruopDel (self,1)
-          end      
+          end   
+          groupGemChk[5] = 0
       elseif (self.gemType == "YELLOW") then
-          if groupGem[6]  >= 4 then                            
-             print("YELLOW"..groupGem[6])    
+         print("YELLOW "..groupGemChk[6],groupGem[6],kk)    
+          if groupGemChk[6]  >= 4 then      
+              if kk ~= "YELLOW" then
+                  groupGem[6]= groupGem[6]+groupGemChk[6]                 
+              end    
+          elseif gemsTable[self.i][self.j].isMarkedToDestroy == true and groupGemChk[6] == 0 then           
           else         
               chkGruopDel (self,1) 
-          end     
-      end     
+          end
+          groupGemChk[6] = 0
+      end   
+      
+--       if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
+--                    print("2ooooo "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
+--               else
+--                    print("2xxxxx "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
+--               end    
 end
 
 function lockGem(self, event)          
@@ -731,17 +780,23 @@ function lockGem(self, event)
               end  
 
            --   print("self.i"..self.i.." self.j"..self.j)
-            --  print("self.chkFtPosit "..self.chkFtPosit)              
               if (self.chkFtPosit=="x") then
                   for stX = 1, gemX, 1 do
                       self.i = stX
                       self.gemType=gemsTable[self.i][self.j].gemType
                 
                       --print("self.i"..self.i.." self.j"..self.j..self.gemType)                 
-                      markToDestroy(self,0)
-               
-                        print("FT groupGemTable "..groupGemTable)
-                      chkGruopGem(self)                   
+                      markToDestroy(self,0)        
+
+                     local kk = stX -1
+                     if(kk > 0) then
+                          kk = gemsTable[kk][self.j].gemType                               
+                      else 
+                           kk = gemsTable[self.i][self.j].gemType                
+                     end
+                      
+                      chkGruopGem(self, kk)         
+
                       --print("xxx".. self.gemType,numberOfMarkedToDestroy )                      
                   end                    
               elseif (self.chkFtPosit=="y" ) then
@@ -750,8 +805,15 @@ function lockGem(self, event)
                       self.gemType=gemsTable[self.i][self.j].gemType                
                  
                       markToDestroy(self,0)
-print("FT groupGemTable "..groupGemTable)------
-                      chkGruopGem(self)                              
+
+                     local kk = stY -1
+                     if(kk > 0) then                       
+                          kk = gemsTable[self.i][kk].gemType  
+                     else 
+                          kk = gemsTable[self.i][self.j].gemType          
+                     end
+                      
+                      chkGruopGem(self,kk)                              
                      -- print("yyy".. self.gemType,numberOfMarkedToDestroy )
                   end  
               else
@@ -759,15 +821,15 @@ print("FT groupGemTable "..groupGemTable)------
               end
 
               --test      
-              print(" - lockGem") --
+              print(" - lockGem") 
               for p = 1 , 6 , 1 do
                   print(p.." "..groupGem[p])     
                   if(groupGem[p]>=4) then 
-                      numberOfMarkedToDestroy = 4
+                      numberOfMarkedToDestroy = 4                 
                   end
-              end         
+              end     
 
-                --print("destroy "..numberOfMarkedToDestroy)
+          --      print("destroy "..numberOfMarkedToDestroy)
               if numberOfMarkedToDestroy >= 4 then                      
                   destroyGems(self)       
               else             
