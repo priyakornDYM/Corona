@@ -652,17 +652,10 @@ function chkGruopDel (self,chkMuti)
 end
 
 function chkGruopGem(self,kk) 
-  --print("self.gemType"..self.gemType) 
-  -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  -- ปัญหา มันเรียงสี่ตัวแบบ บนสองล่างสองไม่ได้ เพราะ มันถูกเช็ดว่า isMarkedToDestroy = true ไปแล้ว มันเลยไม่ count ทำให้ 
-  -- groupGem เป็น 0 เลยเข้า chkGruopDel
-    if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
-                    print("1ooooo "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
-               else
-                    print("1xxxxx "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
-               end       
+  --print("self.gemType"..self.gemType)    
+ 
       if (self.gemType == "RED") then 
-          print("RED "..groupGemChk[1],groupGem[1],kk)         
+       --   print("RED "..groupGemChk[1],groupGem[1],kk)         
           if groupGemChk[1]  >= 4 then
               if (kk ~= "RED") then
                   groupGem[1]= groupGem[1]+groupGemChk[1]                 
@@ -673,7 +666,7 @@ function chkGruopGem(self,kk)
           end       
           groupGemChk[1] = 0    
       elseif (self.gemType == "GREEN") then
-         print("GREEN "..groupGemChk[2],groupGem[2],kk)            
+      --   print("GREEN "..groupGemChk[2],groupGem[2],kk)            
           if groupGemChk[2]  >= 4 then       
               if (kk ~= "GREEN") then
                   groupGem[2]= groupGem[2]+groupGemChk[2]                
@@ -695,7 +688,7 @@ function chkGruopGem(self,kk)
           end     
           groupGemChk[3] = 0
       elseif (self.gemType == "PURPLE") then
-        print("PURPLE "..groupGemChk[4],groupGem[4],kk) 
+   --     print("PURPLE "..groupGemChk[4],groupGem[4],kk) 
           if groupGemChk[4]  >= 4 then    
               if (kk ~= "PURPLE") then
                   groupGem[4]= groupGem[4]+groupGemChk[4]                  
@@ -706,7 +699,7 @@ function chkGruopGem(self,kk)
           end     
           groupGemChk[4] = 0
       elseif (self.gemType == "PINK") then
-        print("PINK "..groupGemChk[5],groupGem[5],kk)   
+      --  print("PINK "..groupGemChk[5],groupGem[5],kk)   
           if groupGemChk[5]  >= 4 then    
             if ( kk ~= "PINK") then              
                 groupGem[5]= groupGem[5]+groupGemChk[5]            
@@ -717,7 +710,7 @@ function chkGruopGem(self,kk)
           end   
           groupGemChk[5] = 0
       elseif (self.gemType == "YELLOW") then
-         print("YELLOW "..groupGemChk[6],groupGem[6],kk)    
+  --       print("YELLOW "..groupGemChk[6],groupGem[6],kk)    
           if groupGemChk[6]  >= 4 then      
               if kk ~= "YELLOW" then
                   groupGem[6]= groupGem[6]+groupGemChk[6]                 
@@ -728,12 +721,6 @@ function chkGruopGem(self,kk)
           end
           groupGemChk[6] = 0
       end   
-      
---       if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
---                    print("2ooooo "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
---               else
---                    print("2xxxxx "..gemsTable[self.i][self.j].i, gemsTable[self.i][self.j].j)
---               end    
 end
 
 function lockGem(self, event)          
@@ -792,7 +779,7 @@ function lockGem(self, event)
                      if(kk > 0) then
                           kk = gemsTable[kk][self.j].gemType                               
                       else 
-                           kk = gemsTable[self.i][self.j].gemType                
+                          kk = "COLOR FT"              
                      end
                       
                       chkGruopGem(self, kk)         
@@ -810,7 +797,7 @@ function lockGem(self, event)
                      if(kk > 0) then                       
                           kk = gemsTable[self.i][kk].gemType  
                      else 
-                          kk = gemsTable[self.i][self.j].gemType          
+                          kk = "COLOR FT"           
                      end
                       
                       chkGruopGem(self,kk)                              
@@ -1042,8 +1029,7 @@ function scene:createScene( event )
 end -- end for scene:createScene
 
 function scene:enterScene( event )
-    local group = self.view
-  
+    local group = self.view  
 end
 
 function scene:exitScene( event )
