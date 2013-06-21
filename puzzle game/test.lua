@@ -29,16 +29,14 @@ local widthGem = 106
 local gemX, gemY = 6, 5
 local stTableX, enTableX = 3, 636
 
-local limitCount = 4
-local numberOfMarkedToDestroy = 0   ---- not use
-local groupGem = { 0, 0, 0, 0, 0, 0}
-local groupGemChk = { 0, 0, 0, 0, 0, 0}
-local groupGemTable=0
+local limitCountGem = 4    ---- chk amount gems
+local groupGem = { 0, 0, 0, 0, 0, 0 }
+local groupGemChk = { 0, 0, 0, 0, 0, 0 }
 local gemToBeDestroyed  	
 local isGemTouchEnabled = true 		
 local countSlide = 0
 
- local channelX = {   54,    --1
+ local channelX = {   54,   --1
                               160,  --2
                               266,  --3
                               372,  --4
@@ -52,16 +50,16 @@ local countSlide = 0
                               903,  --5                  
                            }
 
-local teamPlayer = {    "img/character/minitest1001.png" } 
-local gemPlayer = {    "img/element/green.png"}
+ local amountPlayer = 5 -- simple for test card input to mission
+ local teamPlayer = {}  --- pic, element, hp, protect, lv, power special, leader, power special
+ 
 
 
 
 
 
 timerStash = {}
-transitionStash = {}
-
+transitionStash = {} 
 function cancelAllTimers()
     local k, v
 
@@ -173,6 +171,7 @@ end
 
 function pasteGem(self, event)       
     if(self.chkFtPosit == "x") then        
+      
         positSt = gemsTable[self.i][self.j].i 
         positEn = gemsTable[self.i][self.j].x
         slideEvent = (event.x - event.xStart)    
@@ -353,9 +352,17 @@ function pasteGem(self, event)
         copyGemYU[C]:removeSelf()
         copyGemYD[C]:removeSelf()
     end
-      lineY:removeSelf()
-      lineX:removeSelf()  
+    
       
+  if ( lineY ~=nil) then
+      lineY:removeSelf()         
+      lineY= nil     
+  end     
+  if ( lineX ~=nil) then
+      lineX:removeSelf()         
+      lineX= nil     
+  end       
+     
 --      for i = 1, gemX, 1 do --- x     
 --        for j = 1, gemY, 1 do --- y
 --            print("ยยยยi"..i.." j"..j.."    dest"..gemsTable[i][j].destination_y ) 
@@ -365,8 +372,15 @@ function pasteGem(self, event)
 end
 
 function slideGem(self,event)    
-    if(self.chkFtPosit == "x") then ------- -- -- slide X              
+   -- print(self.chkFtPosit)
+    if(self.chkFtPosit == "x") then -- -- -- -- -- slide X           
+        if ( lineY ~=nil) then
+            lineY:removeSelf()         
+            lineY= nil
+        end    
+        
         self.slideEvent = (event.x - event.xStart)        
+        
        -- gemsTable[][].j :: gemsTable[][].i == point self // gemsTable[self.i][self.j] == data self VIP                         
         if(gemsTable[self.i][self.j].x <= 20 or gemsTable[self.i][self.j].x >= 620) then     --  jump end dont move                  
             pasteGem(self,event) 
@@ -384,7 +398,13 @@ function slideGem(self,event)
             end 
         end         
     elseif (self.chkFtPosit == "y") then -- ---- -- slide Y      
+        if ( lineX ~=nil) then
+            lineX:removeSelf()         
+            lineX= nil
+        end       
+        
         self.slideEvent = (event.y - event.yStart)   
+        
        -- print("JUMP ".. gemsTable[self.i][self.j].y)--
          if(gemsTable[self.i][self.j].y <= 455 or gemsTable[self.i][self.j].y >= 940) then        --  jump end dont move         
               pasteGem(self,event) 
@@ -408,7 +428,7 @@ function slideGem(self,event)
     else
         print ("Error SlideGem Func X Y")
     end       
-   
+    
 end
 
 local function shiftGems () 
@@ -451,44 +471,10 @@ local function enableGemTouch()
 end
 
 local function destroyGems(self)
-	print ("Destroying Gems. Marked to Destroy = "..numberOfMarkedToDestroy)
+	print ("Destroying Gems. Marked to Destroy = ")
   --print("self ".. self.i.. ":".. self.j)
-
---  for i = 1, 6, 1 do
---      if groupGem[i] > 4 then
---          local nameType
---          if (i == 1) then
---              nameType ="RED"
---          elseif (i == 2) then
---              nameType ="GREEN" 
---          elseif (i == 3) then
---              nameType ="BLUE"
---          elseif (i == 4) then
---              nameType ="PURPLE"
---          elseif (i == 5) then
---              nameType ="PINK" 
---          elseif (i == 6) then
---              nameType ="YELLOW" 
---          end 
---          --print("groupGem[i]".. groupGem[i])
---          for i = 1, gemX, 1 do
---            for j = 1, gemY, 1 do        
---                if gemsTable[i][j].isMarkedToDestroy and gemsTable[i][j].gemType == nameType then      
---                --  print("nameType"..nameType)
---                    gemsTable[i][j]:setStrokeColor(140, 140, 140)               
---                    gemsTable[i][j].strokeWidth = 7  
---                    gemsTable[i][j]:setFillColor(150)       
---                    
---                    groupGem[i] = 0
---                                 
---                    --isGemTouchEnabled = false
---                   -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
---                end
---            end
---        end
---      end
---  end
-
+    lockGemMutiChk = true
+    
     for i = 1, gemX, 1 do
         for j = 1, gemY, 1 do        
             if gemsTable[i][j].isMarkedToDestroy  then      
@@ -497,29 +483,26 @@ local function destroyGems(self)
                 gemsTable[i][j].strokeWidth = 7  
                 gemsTable[i][j]:setFillColor(150)                     
                              
-                --isGemTouchEnabled = false
-               -- transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
+                isGemTouchEnabled = false
+                transitionStash.newTransition = transition.to( gemsTable[i][j], { time=300, alpha=0.2, xScale=2, yScale = 2, onComplete=enableGemTouch } )			
             end
         end
     end
-
-  print("chk in"..numberOfMarkedToDestroy)
   
-	--numberOfMarkedToDestroy = 0 
-	--timer.performWithDelay( 320, shiftGems )
+	  timer.performWithDelay( 200, shiftGems )
   
     for  pt = 1 , 6 , 1 do
         groupGem[pt] =0
     end  
     
-  checkMemory()
+    lockGemMuti = 0
+    
+    checkMemory()
 end
 
 local function cleanUpGems()
 	print("Cleaning Up Gems")
-		
-	numberOfMarkedToDestroy = 0
-  
+	 
   for i = 1, gemX, 1 do
       for j = 1, gemY, 1 do			
         -- show that there is not enough
@@ -579,9 +562,8 @@ local function markPreDestory (i,j,chkMuti)
 end
 
 local function markToDestroy(self, chkMuti)   
-      self.isMarkedToDestroy = true  
-  --    numberOfMarkedToDestroy = numberOfMarkedToDestroy + 1      
-  print("markToDestroy ".. gemsTable[self.i][self.j].gemType,chkMuti)
+      self.isMarkedToDestroy = true   
+--  print("markToDestroy ".. gemsTable[self.i][self.j].gemType,chkMuti)
 	if self.i>1 then
       if (gemsTable[self.i-1][self.j]).isMarkedToDestroy == false then
           if (gemsTable[self.i-1][self.j]).gemType == self.gemType then
@@ -656,7 +638,7 @@ function chkGruopGem(self,kk)
  
       if (self.gemType == "RED") then 
        --   print("RED "..groupGemChk[1],groupGem[1],kk)         
-          if groupGemChk[1]  >= 4 then
+          if groupGemChk[1]  >= limitCountGem then
               if (kk ~= "RED") then
                   groupGem[1]= groupGem[1]+groupGemChk[1]                 
               end 
@@ -667,7 +649,7 @@ function chkGruopGem(self,kk)
           groupGemChk[1] = 0    
       elseif (self.gemType == "GREEN") then
       --   print("GREEN "..groupGemChk[2],groupGem[2],kk)            
-          if groupGemChk[2]  >= 4 then       
+          if groupGemChk[2]  >= limitCountGem then       
               if (kk ~= "GREEN") then
                   groupGem[2]= groupGem[2]+groupGemChk[2]                
               end   
@@ -677,8 +659,8 @@ function chkGruopGem(self,kk)
           end     
           groupGemChk[2] = 0
       elseif (self.gemType == "BLUE") then
-         print("BLUE "..groupGemChk[3],groupGem[3],kk)       
-          if groupGemChk[3]  >= 4 then  
+      --   print("BLUE "..groupGemChk[3],groupGem[3],kk)       
+          if groupGemChk[3]  >= limitCountGem then  
               if ( kk ~= "BLUE") then
                   groupGem[3]= groupGem[3]+groupGemChk[3]                  
               end
@@ -689,7 +671,7 @@ function chkGruopGem(self,kk)
           groupGemChk[3] = 0
       elseif (self.gemType == "PURPLE") then
    --     print("PURPLE "..groupGemChk[4],groupGem[4],kk) 
-          if groupGemChk[4]  >= 4 then    
+          if groupGemChk[4]  >= limitCountGem then    
               if (kk ~= "PURPLE") then
                   groupGem[4]= groupGem[4]+groupGemChk[4]                  
               end     
@@ -700,7 +682,7 @@ function chkGruopGem(self,kk)
           groupGemChk[4] = 0
       elseif (self.gemType == "PINK") then
       --  print("PINK "..groupGemChk[5],groupGem[5],kk)   
-          if groupGemChk[5]  >= 4 then    
+          if groupGemChk[5]  >= limitCountGem then    
             if ( kk ~= "PINK") then              
                 groupGem[5]= groupGem[5]+groupGemChk[5]            
             end 
@@ -711,7 +693,7 @@ function chkGruopGem(self,kk)
           groupGemChk[5] = 0
       elseif (self.gemType == "YELLOW") then
   --       print("YELLOW "..groupGemChk[6],groupGem[6],kk)    
-          if groupGemChk[6]  >= 4 then      
+          if groupGemChk[6]  >= limitCountGem then      
               if kk ~= "YELLOW" then
                   groupGem[6]= groupGem[6]+groupGemChk[6]                 
               end    
@@ -808,16 +790,17 @@ function lockGem(self, event)
               end
 
               --test      
-              print(" - lockGem") 
+              --print(" - lockGem") 
+              local  overMin = 0
               for p = 1 , 6 , 1 do
-                  print(p.." "..groupGem[p])     
-                  if(groupGem[p]>=4) then 
-                      numberOfMarkedToDestroy = 4                 
+                  --print(p.." "..groupGem[p])     
+                  if(groupGem[p] >= limitCountGem) then 
+                      overMin = limitCountGem                 
                   end
               end     
 
           --      print("destroy "..numberOfMarkedToDestroy)
-              if numberOfMarkedToDestroy >= 4 then                      
+              if overMin >= limitCountGem then                      
                   destroyGems(self)       
               else             
                   cleanUpGems()                
@@ -852,12 +835,6 @@ function onGemTouch( self, event )	-- was pre-declared
                gemsTable[i][j].colorR = gemsTable[i][j].color   --- - -- - copy gem
                gemsTable[i][j].markX = gemsTable[i][j].x
                gemsTable[i][j].markY = gemsTable[i][j].y   
-               if(gemsTable[i][j].isMarkedToDestroy == false ) then
-                    print("ooooo "..gemsTable[i][j].i, gemsTable[i][j].j)
-               else
-                    print("xxxxx "..gemsTable[i][j].i, gemsTable[i][j].j)
-               end            
-            --  print("test i".. gemsTable[i][j].i.." j".. gemsTable[i][j].j.."  "  ..gemsTable[i][j].colorR )--
            end
        end
 
@@ -884,20 +861,20 @@ function onGemTouch( self, event )	-- was pre-declared
        state.x, state.y = 0, 0       
        
        ------  simple = -=-       
-       gem = display.newImageRect( gemPlayer[1], 30, 30)
-       gem:setReferencePoint( display.TopLeftReferencePoint )
-       gem.x, gem.y = 12, 300       
-       
-       team = display.newImageRect( teamPlayer[1], 100, 100)
+       team = display.newImageRect( teamPlayer[2], 100, 100)
        team:setReferencePoint( display.TopLeftReferencePoint )
        team.x, team.y = 10, 300       
+       
+       lifeline = display.newImageRect( "img/other/life_line.png", 490, 30)
+       lifeline:setReferencePoint( display.TopLeftReferencePoint )
+       lifeline.x, lifeline.y = 110, 395      
        
        frame = display.newImageRect( "img/other/frame.png", 100, 100)
        frame:setReferencePoint( display.TopLeftReferencePoint )
        frame.x, frame.y = 10, 300     
                
        self.chkFtPosit =""  
-       
+      
        print("began :"..self.x, self.y)
        print("i".. gemsTable[self.i][self.j].i.."j" ..gemsTable[self.i][self.j].j )
        print("start".. event.xStart)
@@ -911,20 +888,24 @@ function onGemTouch( self, event )	-- was pre-declared
            local pathY = event.y-event.yStart
            local pathX = event.x-event.xStart                 
     
-           if ( posY == self.markY or self.chkFtPosit == "x" ) then -- move X        
+      --     print("posX ".. posX.." posY ".. posY.." pathX ".. pathX.." pathY ".. pathY )
+    --     print ("event.xStart ".. event.xStart.. " event.x "..event.x.." self.markX ".. self.markX)
+          local speedX = posX - self.markX 
+           if ( (posY == self.markY) or self.chkFtPosit == "x" ) then -- move X        
               if(self.chkFtPosit == "y" ) then
                   posX = self.markX
                   posY = event.y
                 
-                  self.chkFtPosit ="y"     
+                  self.chkFtPosit ="y"                       
               else
                   posX = event.x
                   posY = self.markY
                 
                   self.chkFtPosit ="x"    
-              end                      
+              end                     
+       --       print( "posY == self.markY   moveX")
            elseif ( posX == self.markX or self.chkFtPosit == "y"  ) then -- move Y
-              if(self.chkFtPosit == "x" ) then
+              if(self.chkFtPosit == "x") then
                   posX = event.x
                   posY = self.markY
               
@@ -935,27 +916,32 @@ function onGemTouch( self, event )	-- was pre-declared
              
                   self.chkFtPosit ="y"                     
               end
-
+    --          print( "posX == self.markX   moveY")
            else
-               if (pathY < pathX  and self.chkFtPosit =="") then-- move X
+               if (pathY < pathX  and self.chkFtPosit =="" ) then -- move X
                    posX = event.x
                    posY = self.markY
-                   print("|xxxx")
+            --       print("|xxxx"..pathY,pathX)
                    self.chkFtPosit ="x" 
+--                   local myText = display.newText(pathY.."!"..pathX, 0, 0, native.systemFont, 100)
+--                    myText:setTextColor(0, 0, 0)
+                    
                elseif (pathY > pathX  and self.chkFtPosit =="") then
                    posX = self.markX-- move Y
                    posY = event.y
-                   print("|yyyy")
+           --        print("|yyyy"..pathY,pathX)
                    self.chkFtPosit ="y" 
-               end           
+                else 
+         --          print("sssssssss sss sss s ss ")
+               end  
+               
            end
            
            self.x, self.y = posX, posY  
            --print("x:"..posX.."evX:"..self.x.." y:"..posY.."evY:"..self.y)
            --print("slide "..gemsTable[6][self.j].x)
-             
-           slideGem(self,event)  --- old
-     
+                     
+           slideGem(self,event)  --- old     
        elseif event.phase == "ended" or event.phase == "cancelled" then
            print("end ".. self.chkFtPosit)   
            
@@ -975,6 +961,7 @@ function onGemTouch( self, event )	-- was pre-declared
        end
     end
     return true
+    
 end
 
 function scene:createScene( event )     
@@ -994,15 +981,30 @@ function scene:createScene( event )
     state:setReferencePoint( display.TopLeftReferencePoint )
     state.x, state.y = 0, 0
     group:insert(state) 
-    
-    local gem = display.newImageRect( gemPlayer[1], 30, 30)
-    gem:setReferencePoint( display.TopLeftReferencePoint )
-    gem.x, gem.y = 12, 300    
        
-    local team = display.newImageRect( teamPlayer[1], 100, 100)
+    for i =1, amountPlayer  do
+        teamPlayer[i]={}
+        
+        teamPlayer[i].pic ="img/character/minitest1001.png" 
+        teamPlayer[i].ele=0
+        teamPlayer[i].att=0
+        teamPlayer[i].hp=0
+        teamPlayer[i].ptt=0
+        teamPlayer[i].lv=0
+        teamPlayer[i].pw_sp=0
+        teamPlayer[i].lead=0       
+    end
+    print ( teamPlayer[1].pic)
+      
+    local team = display.newImageRect( teamPlayer[1].pic, 100, 100)
     team:setReferencePoint( display.TopLeftReferencePoint )
     team.x, team.y = 10, 300
     group:insert(team) 
+    
+    local lifeline = display.newImageRect( "img/other/life_line.png", 490, 30)
+    lifeline:setReferencePoint( display.TopLeftReferencePoint )
+    lifeline.x, lifeline.y = 110, 395
+    group:insert(lifeline) 
     
     local frame = display.newImageRect( "img/other/frame.png", 100, 100)
     frame:setReferencePoint( display.TopLeftReferencePoint )
@@ -1021,7 +1023,7 @@ function scene:createScene( event )
     
     groupGameLayer = display.newGroup()
   --  groupEndGameLayer = display.newGroup()
-    --
+
     group:insert(groupGameLayer)
     
     

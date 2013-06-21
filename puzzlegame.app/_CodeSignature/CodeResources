@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>130656</key>
+		<data>
+		yNmDivbJFuA94wiy+3ousnufGuc=
+		</data>
 		<key>CoronaResources.bundle/widget_theme_ios.png</key>
 		<data>
 		Q8NIP7jbz3kqY6Rb5GmI5MYbeWk=
@@ -348,6 +352,14 @@
 		<data>
 		Q0WOwzkBvpWQvgqPAkN/7w/LLzo=
 		</data>
+		<key>img/other/life_line.png</key>
+		<data>
+		Z9aNFuNS8HYTt0OmaBE+iWnsZOk=
+		</data>
+		<key>img/other/life_short.png</key>
+		<data>
+		rcj7IKIjX0tcBPfIPwGILfsxx2k=
+		</data>
 		<key>img/state_mission/water1.jpg</key>
 		<data>
 		QSmPVSjxx6BjgD4gUYjo+e+8B9A=
@@ -378,7 +390,7 @@
 		</data>
 		<key>resource.car</key>
 		<data>
-		O0blIPZYFMqH+uzKpIbTs30tIts=
+		GUa/E9AiLF2aqsxY0aLA+OEW8x0=
 		</data>
 		<key>testGame</key>
 		<data>
