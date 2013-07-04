@@ -58,6 +58,9 @@ local countSlide = 0
 
 
 
+
+
+
 timerStash = {}
 transitionStash = {} 
 function cancelAllTimers()
@@ -818,14 +821,26 @@ function formulaMission( randomGem, powerChr)
 end
 
 local function networkListener( event )
+--        print("address", event.address )
+--        print("isReachable", event.isReachable )
+--        print("isConnectionRequired", event.isConnectionRequired)
+--        print("isConnectionOnDemand", event.isConnectionOnDemand)
+--        print("IsInteractionRequired", event.isInteractionRequired)
+--        print("IsReachableViaCellular", event.isReachableViaCellular)
+--        print("IsReachableViaWiFi", event.isReachableViaWiFi)   
+
         if ( event.isError ) then
-                print ( "Network error - download failed" )
+            print ( "Network error - download failed" )
         else
-                event.target.alpha = 0
-                transitionStash.newTransition = transition.to( event.target, { alpha = 1.0 } )
+            print("Connect good")
+--            event.target.alpha = 0
+--            transitionStash.newTransition = transition.to( event.target, { alpha = 1.0 } )
+            print ( "RESPONSE: " .. event.response )
+--
+      --      local data = json.decode(event.response)
         end
 
-        print ( "RESPONSE: " .. event.response )
+        --print ( "RESPONSE: " .. event.response )
 end
 
 function onGemTouch( self, event )	-- was pre-declared   
@@ -861,7 +876,7 @@ function onGemTouch( self, event )	-- was pre-declared
        state.x, state.y = 0, 0       
        
        ------  simple = -=-       
-       team = display.newImageRect( teamPlayer[2], 100, 100)
+       team = display.newImageRect( teamPlayer[1].pic, 100, 100)
        team:setReferencePoint( display.TopLeftReferencePoint )
        team.x, team.y = 10, 300       
        
@@ -985,21 +1000,20 @@ function scene:createScene( event )
     for i =1, amountPlayer  do
         teamPlayer[i]={}
         
-        teamPlayer[i].pic ="img/character/minitest1001.png" 
-        teamPlayer[i].ele=0
-        teamPlayer[i].att=0
-        teamPlayer[i].hp=0
-        teamPlayer[i].ptt=0
-        teamPlayer[i].lv=0
-        teamPlayer[i].pw_sp=0
-        teamPlayer[i].lead=0       
+        teamPlayer[i].pic = "img/character/minitest1001.png" 
+        teamPlayer[i].ele = 0
+        teamPlayer[i].att = 0
+        teamPlayer[i].ptt = 0
+        teamPlayer[i].hp = 0   
+        teamPlayer[i].lv = 0
+        teamPlayer[i].pw_sp = 0
+        teamPlayer[i].lead = 0                
     end
-    print ( teamPlayer[1].pic)
-      
-    local team = display.newImageRect( teamPlayer[1].pic, 100, 100)
-    team:setReferencePoint( display.TopLeftReferencePoint )
-    team.x, team.y = 10, 300
-    group:insert(team) 
+          
+--    local team = display.newImageRect( teamPlayer[1].pic, 100, 100)
+--    team:setReferencePoint( display.TopLeftReferencePoint )
+--    team.x, team.y = 10, 300
+--    group:insert(team) 
     
     local lifeline = display.newImageRect( "img/other/life_line.png", 490, 30)
     lifeline:setReferencePoint( display.TopLeftReferencePoint )
@@ -1011,7 +1025,25 @@ function scene:createScene( event )
     frame.x, frame.y = 10, 300     
     group:insert(frame) 
        
-       
+    ------------------------- connect REST serviced -------------------------
+    local url = "http://iapp.dym.co.th/playgame.php"
+    local headers = {}
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers["Accept-Language"] = "en-US"
+
+    local body = "color=red&size=small"
+    local params = {  }
+    
+    params.headers = headers
+    params.body = body
+
+    url = url.."?id=1"
+    url = url.."&&state=1"
+    url = url.."&&team=1"
+
+    print("url :"..url)
+    network.request( url, "GET", networkListener, params)
+    
    ------------------------- gemsTable -------------------------
     for i = 1, gemX, 1 do --- x
         gemsTable[i] = {}
