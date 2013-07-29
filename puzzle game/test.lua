@@ -1,4 +1,3 @@
-
 -----------------------------------------------------------------------------------------
 --
 -- test.lua
@@ -50,16 +49,17 @@ local countSlide = 0
                               903,  --5                  
                            }
 
- local amountPlayer = 5 -- simple for test card input to mission
- local teamPlayer = {}  --- pic, element, hp, protect, lv, power special, leader, power special
+--local amountPlayer = 5 -- simple for test card input to mission
+local state_main -- state
+local teamPlayer = {}  --- pic, element, hp, protect, lv, power special, leader, power special
+local playerDB  ={}  -- data for player
+local posXch={10,115,220,325,430,535} ---- ระยะห่าง
  
-
-
-
-
-
-
-
+-------------------------- HP value -------------------------
+local number ={}
+local hpPlayer = 789
+local hpFull = 654321 
+            
 
 timerStash = {}
 transitionStash = {} 
@@ -820,31 +820,18 @@ function formulaMission( randomGem, powerChr)
       print("formula")     
 end
 
-local function networkListener( event )
---        print("address", event.address )
---        print("isReachable", event.isReachable )
---        print("isConnectionRequired", event.isConnectionRequired)
---        print("isConnectionOnDemand", event.isConnectionOnDemand)
---        print("IsInteractionRequired", event.isInteractionRequired)
---        print("IsReachableViaCellular", event.isReachableViaCellular)
---        print("IsReachableViaWiFi", event.isReachableViaWiFi)   
-
-        if ( event.isError ) then
-            print ( "Network error - download failed" )
-        else
-            print("Connect good")
---            event.target.alpha = 0
---            transitionStash.newTransition = transition.to( event.target, { alpha = 1.0 } )
-            print ( "RESPONSE: " .. event.response )
---
-      --      local data = json.decode(event.response)
-        end
-
-        --print ( "RESPONSE: " .. event.response )
+local function numberToimg (hp,stHp,si,i)          
+      number[i] =display.newImageRect("img/other/"..hp..".png",si,25)
+      number[i]:setReferencePoint( display.TopLeftReferencePoint )
+      number[i].x, number[i].y = stHp, 400                
 end
 
-function onGemTouch( self, event )	-- was pre-declared   
-   if event.phase == "began" then
+function onGemTouch( self, event )	-- was pre-declared     
+   local stHp, si =590, 20   
+   if event.phase == "began" then  
+--     print("2 "..playerDB.charac_def[1])
+--     print("sss "..table.getn(playerDB.charac_def))        
+       
        for  i = 1 ,gemX, 1 do
            for  j = 1 , gemY, 1 do
                gemsTable[i][j].colorR = gemsTable[i][j].color   --- - -- - copy gem
@@ -859,7 +846,7 @@ function onGemTouch( self, event )	-- was pre-declared
        if(gemsTable[self.i][self.j].isMarkedToDestroy == false ) then
           self:setFillColor(100)       
        end      
-       
+        
        widhtLineY, widhtLineX = 525, 620             
        sizeLineStY, sizeLineStX = 695, 320
              
@@ -870,30 +857,84 @@ function onGemTouch( self, event )	-- was pre-declared
        lineX.x, lineX.y = sizeLineStX, self.markY
             
        copyGem(self, event)      
-       
-       state = display.newImageRect( "img/state_mission/water_spring03.jpg", 640, 425)
+      
+       state = display.newImageRect( state_main, 640, 425)
        state:setReferencePoint( display.TopLeftReferencePoint )
        state.x, state.y = 0, 0       
-       
-       ------  simple = -=-       
-       team = display.newImageRect( teamPlayer[1].pic, 100, 100)
-       team:setReferencePoint( display.TopLeftReferencePoint )
-       team.x, team.y = 10, 300       
-       
-       lifeline = display.newImageRect( "img/other/life_line.png", 490, 30)
-       lifeline:setReferencePoint( display.TopLeftReferencePoint )
-       lifeline.x, lifeline.y = 110, 395      
-       
-       frame = display.newImageRect( "img/other/frame.png", 100, 100)
+
+      lifeline_sh = display.newImageRect( "img/other/life_short.png", 550, 20)    --- full 550
+      lifeline_sh:setReferencePoint( display.TopLeftReferencePoint )
+      lifeline_sh.x, lifeline_sh.y = 70, 400
+            
+      lifeline = display.newImageRect( "img/other/life_line.png", 600, 30) -- 490
+      lifeline:setReferencePoint( display.TopLeftReferencePoint )
+      lifeline.x, lifeline.y = 25, 395
+      
+      for i =1, amountPlayer  do
+          teamPlayer[i]={}
+          
+          teamPlayer[i].pic = playerDB.img_mini[i]
+          teamPlayer[i].ele = playerDB.charac_ele[i]  
+          teamPlayer[i].att = playerDB.charac_att[i]
+       --   teamPlayer[i].ptt = playerDB.charac_element[i]
+          teamPlayer[i].hp = playerDB.charac_hp[i]
+          teamPlayer[i].lv = playerDB.charac_lv[i]
+  --        teamPlayer[i].pw_sp = 0
+  --        teamPlayer[i].lead = 0                  
+  
+          local team = display.newImageRect( teamPlayer[i].pic , 100, 100)
+          team:setReferencePoint( display.TopLeftReferencePoint )
+          team.x, team.y = posXch[i], 295
+          
+          local frame = display.newImageRect( "img/other/frame_cha"..teamPlayer[i].ele..".png", 100, 100)
+          frame:setReferencePoint( display.TopLeftReferencePoint )
+          frame.x, frame.y = posXch[i], 295                       
+          
+      end
+      
+      comm = display.newImageRect( "img/character/full1002.png", 200, 200)   --- ช่องไฟ 120
+      comm:setReferencePoint( display.TopLeftReferencePoint )
+      comm.x, comm.y = -20, 80
+
+      for i = string.len(hpFull) ,1, -1 do        
+            if ( string.sub(hpFull, i, i) == "1") then
+                si =15               
+            else
+                si = 20    
+            end
+            stHp = stHp -si
+            numberToimg (string.sub(hpFull, i, i) ,stHp,si,i)                
+     --     number =display.newImageRect("img/other/"..string.sub(hpFull, i, i)..".png", si, 25)
+--          number:setReferencePoint( display.TopLeftReferencePoint )
+  --          number.x, number.y = stHp, 400      
+        end    
+          
+      stHp = stHp - si
+      numberBar =display.newImageRect("img/other/bar.png",si,25)
+      numberBar:setReferencePoint( display.TopLeftReferencePoint )
+      numberBar.x, numberBar.y = stHp, 400          
+      
+      for i = string.len(hpPlayer), 1, -1 do        
+          if ( string.sub(hpPlayer, i, i) == "1") then
+              si =15               
+          else
+              si = 20    
+          end
+          stHp = stHp -si         
+          numberToimg (string.sub(hpPlayer, i, i) ,stHp,si,string.len(hpPlayer)+ string.len(hpFull)-i+1)                     
+      end 
+   
+       frame = display.newImageRect( "img/other/frame_cha2.png", 100, 100)
        frame:setReferencePoint( display.TopLeftReferencePoint )
-       frame.x, frame.y = 10, 300     
+       frame.x, frame.y = posXch[1], 295    
                
        self.chkFtPosit =""  
       
        print("began :"..self.x, self.y)
        print("i".. gemsTable[self.i][self.j].i.."j" ..gemsTable[self.i][self.j].j )
        print("start".. event.xStart)
-       print("mark".. self.markX )
+       print("mark".. self.markX )      
+
      --  local ftCilck = ""
    elseif self.isFocus then       
        if event.phase == "moved" then
@@ -903,7 +944,7 @@ function onGemTouch( self, event )	-- was pre-declared
            local pathY = event.y-event.yStart
            local pathX = event.x-event.xStart                 
     
-      --     print("posX ".. posX.." posY ".. posY.." pathX ".. pathX.." pathY ".. pathY )
+    --     print("posX ".. posX.." posY ".. posY.." pathX ".. pathX.." pathY ".. pathY )
     --     print ("event.xStart ".. event.xStart.. " event.x "..event.x.." self.markX ".. self.markX)
           local speedX = posX - self.markX 
            if ( (posY == self.markY) or self.chkFtPosit == "x" ) then -- move X        
@@ -946,7 +987,7 @@ function onGemTouch( self, event )	-- was pre-declared
                    posY = event.y
            --        print("|yyyy"..pathY,pathX)
                    self.chkFtPosit ="y" 
-                else 
+               else 
          --          print("sssssssss sss sss s ss ")
                end  
                
@@ -972,68 +1013,156 @@ function onGemTouch( self, event )	-- was pre-declared
               self:setFillColor(255)       
            else
               self:setFillColor(150)     
-           end                     
+           end               
+
+           if ( number ~=nil) then
+                numberBar:removeSelf()
+                numberBar= nil
+                
+                for i = 1, string.len(hpFull)+string.len(hpPlayer) do                        
+                    number[i]:removeSelf()         
+                    number[i]= nil             
+                end
+            end  
+            
+--            hpFull = 12    ---  hp before play
+--            hpPlayer = 11
+
+            for i = string.len(hpFull) ,1, -1 do        
+                if ( string.sub(hpFull, i, i) == "1") then
+                      si =15               
+                  else
+                      si = 20    
+                  end
+                  stHp = stHp -si
+                  numberToimg (string.sub(hpFull, i, i) ,stHp,si,i)        
+              end    
+                
+            stHp = stHp - si
+            numberBar =display.newImageRect("img/other/bar.png",si,25)
+            numberBar:setReferencePoint( display.TopLeftReferencePoint )
+            numberBar.x, numberBar.y = stHp, 400          
+            
+              for i = string.len(hpPlayer), 1, -1 do        
+                if ( string.sub(hpPlayer, i, i) == "1") then
+                    si =15               
+                else
+                    si = 20    
+                end
+                stHp = stHp -si         
+                numberToimg (string.sub(hpPlayer, i, i) ,stHp,si,string.len(hpPlayer)+ string.len(hpFull)-i+1)                     
+            end   
+            
        end
     end
     return true
     
 end
 
-function scene:createScene( event )     
-    print("--------------main puzzle----------------")
-    checkMemory()
-    
-    groupGameLayer = display.newGroup()
-    
-    local group = self.view
-    
-    local background = display.newImageRect( "img/background/bg_puzzle_test.tga", _W, _H )
-    background:setReferencePoint( display.TopLeftReferencePoint )
-    background.x, background.y = 0, 0        
-    group:insert(background)      
-    
-    local state = display.newImageRect( "img/state_mission/water_spring03.jpg", 640, 425)
-    state:setReferencePoint( display.TopLeftReferencePoint )
-    state.x, state.y = 0, 0
-    group:insert(state) 
-       
-    for i =1, amountPlayer  do
-        teamPlayer[i]={}
+function scene:createScene( event )          
+  --   print("before "..table.getn(playerDB.charac_def))
+     ------------------------- connect REST serviced -------------------------
+      local function networkListener( event )
+          if ( event.isError ) then
+              print ( "Network error - download failed" )
+          else
+              print("Connect good")              
+              print ( "RESPONSE: " .. event.response )
         
-        teamPlayer[i].pic = "img/character/minitest1001.png" 
-        teamPlayer[i].ele = 0
-        teamPlayer[i].att = 0
-        teamPlayer[i].ptt = 0
-        teamPlayer[i].hp = 0   
-        teamPlayer[i].lv = 0
-        teamPlayer[i].pw_sp = 0
-        teamPlayer[i].lead = 0                
-    end
+              local json = require "json"
+            
+              playerDB = json.decode(event.response)         
+   --           print("1 "..playerDB.state_img[1])     
+   
+              state_main   = playerDB.state_img[1]      
+              
+              local state = display.newImageRect(playerDB.state_img[1], 640, 425)
+              state:setReferencePoint( display.TopLeftReferencePoint )
+              state.x, state.y = 0, 0
+                            
+              amountPlayer = table.getn(playerDB.charac_id)
+                 
+              for i =1, amountPlayer  do
+                  teamPlayer[i]={}
+                  
+                  teamPlayer[i].pic = playerDB.img_mini[i]
+                  teamPlayer[i].ele = playerDB.charac_ele[i]  
+                  teamPlayer[i].att = playerDB.charac_att[i]
+               --   teamPlayer[i].ptt = playerDB.charac_element[i]
+                  teamPlayer[i].hp = playerDB.charac_hp[i]
+                  teamPlayer[i].lv = playerDB.charac_lv[i]
+          --        teamPlayer[i].pw_sp = 0
+          --        teamPlayer[i].lead = 0                  
           
---    local team = display.newImageRect( teamPlayer[1].pic, 100, 100)
---    team:setReferencePoint( display.TopLeftReferencePoint )
---    team.x, team.y = 10, 300
---    group:insert(team) 
-    
-    local lifeline = display.newImageRect( "img/other/life_line.png", 490, 30)
-    lifeline:setReferencePoint( display.TopLeftReferencePoint )
-    lifeline.x, lifeline.y = 110, 395
-    group:insert(lifeline) 
-    
-    local frame = display.newImageRect( "img/other/frame.png", 100, 100)
-    frame:setReferencePoint( display.TopLeftReferencePoint )
-    frame.x, frame.y = 10, 300     
-    group:insert(frame) 
+                  local team = display.newImageRect( teamPlayer[i].pic , 100, 100)
+                  team:setReferencePoint( display.TopLeftReferencePoint )
+                  team.x, team.y = posXch[i], 295
+                  
+                  local frame = display.newImageRect( "img/other/frame_cha"..teamPlayer[i].ele..".png", 100, 100)
+                  frame:setReferencePoint( display.TopLeftReferencePoint )
+                  frame.x, frame.y = posXch[i], 295                       
+                  
+              end
+              ------ friend / guess ----
+--                  local team = display.newImageRect( teamPlayer[i].pic , 100, 100)
+--                  team:setReferencePoint( display.TopLeftReferencePoint )
+--                  team.x, team.y = posXch[6], 295
+--                 local frame = display.newImageRect( "img/other/frame_cha1.png", 100, 100)
+--                  frame:setReferencePoint( display.TopLeftReferencePoint )
+--                  frame.x, frame.y = posXch[6], 295           
+              
+                  local lifeline_sh = display.newImageRect( "img/other/life_short.png", 550, 20) -- full 550
+                  lifeline_sh:setReferencePoint( display.TopLeftReferencePoint )
+                  lifeline_sh.x, lifeline_sh.y = 70, 400
+ 
+                  local lifeline = display.newImageRect( "img/other/life_line.png", 600, 30) -- 490
+                  lifeline:setReferencePoint( display.TopLeftReferencePoint )
+                  lifeline.x, lifeline.y = 25, 395
+
+                  local comm = display.newImageRect( "img/character/full1002.png", 200, 200)   --- ช่องไฟ 120
+                  comm:setReferencePoint( display.TopLeftReferencePoint )
+                  comm.x, comm.y = -20, 80
+               
+                  -- score  player/full  เอา  full  เป็นจุดเริ่ม 590   
+                  -------------------------- HP value -------------------------
+                  local stHp, si =590, 20   
+                  
+                  for i = string.len(hpFull) ,1, -1 do        
+                     if ( string.sub(hpFull, i, i) == "1") then
+                          si =15               
+                      else
+                          si = 20    
+                      end
+                      stHp = stHp -si
+                      numberToimg (string.sub(hpFull, i, i) ,stHp,si,i)             
+                  end    
+                  
+                  stHp = stHp - si
+                  numberBar =display.newImageRect("img/other/bar.png",si,25)
+                  numberBar:setReferencePoint( display.TopLeftReferencePoint )
+                  numberBar.x, numberBar.y = stHp, 400    
        
-    ------------------------- connect REST serviced -------------------------
-    local url = "http://iapp.dym.co.th/playgame.php"
+                  for i = string.len(hpPlayer), 1, -1 do        
+                      if ( string.sub(hpPlayer, i, i) == "1") then
+                          si =15               
+                      else
+                          si = 20    
+                      end
+                      stHp = stHp -si         
+                      numberToimg (string.sub(hpPlayer, i, i) ,stHp,si,string.len(hpPlayer)+ string.len(hpFull)-i+1)       
+                  end      
+
+          end
+      end
+     
+    local url = "http://133.242.169.252/playgame.php"
     local headers = {}
     headers["Content-Type"] = "application/x-www-form-urlencoded"
     headers["Accept-Language"] = "en-US"
 
     local body = "color=red&size=small"
     local params = {  }
-    
+
     params.headers = headers
     params.body = body
 
@@ -1042,16 +1171,49 @@ function scene:createScene( event )
     url = url.."&&team=1"
 
     print("url :"..url)
-    network.request( url, "GET", networkListener, params)
+    network.request( url, "GET", networkListener, params) 
     
+    
+    print("--------------main puzzle----------------")
+    checkMemory()
+    
+    groupGameLayer = display.newGroup()
+    
+    local group = self.view
+    
+    --   group:insert(state)      
+    local background = display.newImageRect( "img/background/bg_puzzle_test.tga", _W, _H )
+    background:setReferencePoint( display.TopLeftReferencePoint )
+    background.x, background.y = 0, 0        
+    group:insert(background)      
+    
+--                  local state = display.newImageRect("img/state_mission/water_spring.jpg", 640, 425)
+--              state:setReferencePoint( display.TopLeftReferencePoint )
+--              state.x, state.y = 0, 0
+--               group:insert(state)      
+
+   
+   -- local tileSheet = sprite.newSpriteSheet("img/other/number.png", 110, 178)
+--    local tileSet = sprite.newSpriteSet(tileSheet, 1, 10)
+--    local tile = sprite.newSprite(tileSet)
+--    tile.currentFrame = 1
+
+--  local test = sprite.newSpriteSheet( "img/other/number.png", 110, 178 )
+--  local spriteset = sprite.newSpriteSet(test , 1, 10)
+--	sprite.add( spriteset, "one", 1, 2, 200, 0 ) 
+--	sprite.add( spriteset, "two", 3, 1, 1, 0 ) 
+--	sprite.add( spriteset, "three", 4, 2, 100, 0 )  
+   
+ --  panda = sprite.newSprite( spriteset )
+   --group:insert( panda )
+   
    ------------------------- gemsTable -------------------------
     for i = 1, gemX, 1 do --- x
         gemsTable[i] = {}
         for j = 1, gemY, 1 do --- y
             gemsTable[i][j] = newGem(i,j)
         end
-    end
-    
+    end    
     
     groupGameLayer = display.newGroup()
   --  groupEndGameLayer = display.newGroup()
@@ -1062,7 +1224,7 @@ function scene:createScene( event )
     
 end -- end for scene:createScene
 
-function scene:enterScene( event )
+function scene:enterScene( event )    
     local group = self.view  
 end
 
@@ -1072,6 +1234,29 @@ end
 
 function scene:destroyScene( event )
     local group = self.view
+end
+------- sample used ------- 
+ local function networkListener( event )
+--        print("address", event.address )
+--        print("isReachable", event.isReachable )
+--        print("isConnectionRequired", event.isConnectionRequired)
+--        print("isConnectionOnDemand", event.isConnectionOnDemand)
+--        print("IsInteractionRequired", event.isInteractionRequired)
+--        print("IsReachableViaCellular", event.isReachableViaCellular)
+--        print("IsReachableViaWiFi", event.isReachableViaWiFi)   
+
+        if ( event.isError ) then
+            print ( "Network error - download failed" )
+        else
+            print("Connect good")
+--            event.target.alpha = 0
+--            transitionStash.newTransition = transition.to( event.target, { alpha = 1.0 } )
+            print ( "RESPONSE: " .. event.response )
+      
+            local json = require "json"
+          
+            playerDB = json.decode(event.response)         
+        end
 end
 
 scene:addEventListener( "createScene", scene )
